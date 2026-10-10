@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>めざせ自由時間！スタディクエスト</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    body { -webkit-tap-highlight-color: transparent; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 9999px; }
+    .touch-scroll { -webkit-overflow-scrolling: touch; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen flex flex-col font-sans select-none overflow-hidden">
+
+  <!-- 1. ヘッダー -->
+  <header class="bg-white border-b border-slate-200 px-6 py-2.5 flex items-center justify-between shadow-sm z-10 flex-shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md">
+        <i data-lucide="compass" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <h1 class="text-base font-black text-slate-800 tracking-tight">スタディクエスト</h1>
+          <span id="currentModeBadge" class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">子どもモード</span>
+          <span id="studyStartedBadge" class="hidden text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center gap-1">
+            <i data-lucide="clock" class="w-3 h-3"></i><span id="studyStartedText">開始: --:--</span>
+          </span>
+          <span id="studyFinishedBadge" class="hidden text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center gap-1">
+            <i data-lucide="award" class="w-3 h-3"></i><span id="studyFinishedText">終了: --:--</span>
+          </span>
+        </div>
+        <div id="headerDinnerRow" class="flex items-center gap-4 text-xs font-semibold text-slate-500 mt-0.5 flex-wrap">
+          <span id="todayReturnDisplay" class="flex items-center gap-1 text-slate-600 font-bold">
+            <i data-lucide="home" class="w-3.5 h-3.5 text-blue-500"></i>
+            帰宅: <span id="todayReturnTimeText">--:--</span>
+          </span>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="utensils" class="w-3.5 h-3.5 text-amber-500"></i>
+            夕食:
+            <input type="time" id="dinnerTimeInput" value="19:00" class="border border-slate-200 rounded px-1.5 py-0.5 bg-slate-50 font-bold text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          </label>
+          <span class="flex items-center gap-1">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-500"></i>
+            完了予定: <span id="finishTimeText" class="font-bold text-slate-700">--:--</span>
+          </span>
+          <span id="targetFinishDisplay" class="hidden text-indigo-600 font-bold flex items-center gap-1">
+            <i data-lucide="flag" class="w-3.5 h-3.5"></i>目標: <span id="targetFinishTimeText">--:--</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自由時間バナー -->
+    <div id="freeTimeBanner" class="flex items-center gap-3 bg-emerald-50 border border-emerald-300 px-5 py-1.5 rounded-2xl shadow-sm transition-all duration-300">
+      <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-sm animate-pulse">★</div>
+      <div>
+        <div class="text-[9px] font-bold uppercase tracking-wider text-emerald-700">夕食までの自由時間</div>
+        <div class="text-lg font-black text-emerald-800 leading-tight">
+          <span id="freeTimeMinutes">0</span> <span class="text-xs font-bold">分ゲット！</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- （２）右側アクションボタン群：開始・終了ボタンを独立配置 -->
+    <div class="flex items-center gap-2">
+      <div id="childActionGroup" class="flex items-center gap-1.5 flex-wrap">
+        <!-- 開始ボタングループ -->
+        <button id="startMorningBtn" onclick="startMorningStudy()" class="flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 text-amber-800 hover:bg-amber-100 rounded-xl font-bold text-xs border border-amber-200 transition">
+          <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i>
+          <span>朝勉スタート</span>
+        </button>
+        <button id="startTodayBtn" onclick="openStartStudyModal()" class="flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl font-bold text-xs border border-blue-200 transition">
+          <i data-lucide="play-circle" class="w-3.5 h-3.5 text-blue-600"></i>
+          <span>今日勉スタート</span>
+        </button>
+
+        <!-- （２）終了ボタングループ（メイン画面に追加） -->
+        <button onclick="finishStudySessionManual('朝勉')" class="flex items-center gap-1 px-2.5 py-1.5 bg-orange-50 text-orange-800 hover:bg-orange-100 rounded-xl font-bold text-xs border border-orange-300 transition">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-orange-600"></i>
+          <span>朝勉を終える</span>
+        </button>
+        <button onclick="finishStudySessionManual('今日の勉強')" class="flex items-center gap-1 px-2.5 py-1.5 bg-rose-50 text-rose-800 hover:bg-rose-100 rounded-xl font-bold text-xs border border-rose-300 transition">
+          <i data-lucide="stop-circle" class="w-3.5 h-3.5 text-rose-600"></i>
+          <span>今日の勉強を終える</span>
+        </button>
+
+        <button id="quickLoadTodayBtn" onclick="quickLoadTodaySchedule()" class="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-bold text-xs border border-indigo-200 transition">
+          <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
+          <span>標準メニュー呼出</span>
+        </button>
+      </div>
+      <button id="toggleModeBtn" onclick="toggleMode()" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-white hover:bg-slate-700 rounded-xl font-bold text-xs transition shadow-sm">
+        <i data-lucide="settings" id="modeIcon" class="w-4 h-4"></i>
+        <span id="modeBtnText">保護者・設定</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- 2. 子どもモード（通常画面） -->
+  <!-- ======================================================== -->
+  <main id="childView" class="flex-1 min-h-0 flex overflow-hidden p-4 gap-4">
+    <!-- 左カラム：上下2段構成 -->
+    <section class="w-5/12 min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <!-- 上段：今日のやることリスト -->
+      <div class="flex-1 min-h-0 flex flex-col border-b border-slate-200">
+        <div class="p-3 bg-slate-50 border-b border-slate-200 flex-shrink-0 flex items-center justify-between">
+          <div class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+            <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
+            <span>今日のやることリスト</span>
+          </div>
+          <button onclick="openAddTaskModal()" class="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow-sm hover:bg-indigo-700 transition">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> 追加
+          </button>
+        </div>
+        <div class="flex-1 min-h-0 overflow-y-auto p-3 custom-scroll touch-scroll flex flex-col gap-2" id="taskListContainer"></div>
+      </div>
+
+      <!-- 下段：今日の習いごと・日能研エリア -->
+      <div class="h-44 min-h-[140px] flex flex-col bg-slate-50/50 flex-shrink-0">
+        <div class="px-3 py-2 bg-sky-50/80 border-b border-sky-100 flex items-center justify-between flex-shrink-0">
+          <div class="text-xs font-black text-sky-800 flex items-center gap-1.5">
+            <i data-lucide="backpack" class="w-3.5 h-3.5 text-sky-600"></i>
+            <span>今日の習いごと・通塾</span>
+          </div>
+          <span class="text-[10px] font-bold text-sky-600 bg-white px-2 py-0.5 rounded border border-sky-200">
+            勉強完了後に出発！
+          </span>
+        </div>
+        <div class="flex-1 min-h-0 overflow-y-auto p-2.5 custom-scroll touch-scroll flex flex-col gap-2 bg-white/60" id="lessonListContainer"></div>
+      </div>
+
+      <!-- フッター -->
+      <div class="p-2.5 bg-slate-50 border-t border-slate-200 flex-shrink-0 flex items-center justify-between text-xs font-bold text-slate-600">
+        <div>勉強合計: <span id="totalStudyMinutes" class="text-sm font-black text-indigo-600">0</span> 分</div>
+        <button onclick="clearAllTasks()" class="text-rose-500 hover:text-rose-700 flex items-center gap-1">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 全消去
+        </button>
+      </div>
+    </section>
+
+    <!-- 右カラム：タイマーパネル -->
+    <section id="timerPanel" class="w-7/12 min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative overflow-hidden transition-colors duration-500 justify-between items-center text-center">
+      <div class="w-full flex items-center justify-between flex-shrink-0">
+        <span id="timerCategoryBadge" class="px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-slate-100 text-slate-600">準備中</span>
+        <span id="currentTaskIndexText" class="text-xs font-bold text-slate-400">タスク未選択</span>
+      </div>
+
+      <div class="my-auto w-full">
+        <div id="currentMajorCategory" class="text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase"></div>
+        <h2 id="currentTaskTitle" class="text-3xl font-black text-slate-800 mb-2 truncate">左のリストからタスクを選択</h2>
+
+        <div id="nextStepBanner" class="hidden my-3 p-3 bg-amber-50 border border-amber-300 rounded-xl max-w-md mx-auto text-amber-900 font-bold text-sm shadow-sm flex items-center justify-center gap-2">
+          <i data-lucide="arrow-right-circle" class="w-5 h-5 text-amber-600 flex-shrink-0"></i>
+          <span>次は「<span id="nextTaskName" class="underline decoration-2">理科</span>」！テキストを開いておこう</span>
+        </div>
+
+        <div class="relative w-56 h-56 mx-auto my-4 flex items-center justify-center">
+          <svg class="w-full h-full transform -rotate-90">
+            <circle cx="112" cy="112" r="98" stroke="currentColor" stroke-width="14" class="text-slate-100" fill="transparent" />
+            <circle id="timerRing" cx="112" cy="112" r="98" stroke="currentColor" stroke-width="14" class="text-indigo-600 transition-all duration-1000" fill="transparent" stroke-dasharray="615.75" stroke-dashoffset="0" stroke-linecap="round" />
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div id="timeRemainingDisplay" class="text-5xl font-black text-slate-800 tracking-tight font-mono">00:00</div>
+            <div id="timerSubLabel" class="text-xs font-bold text-slate-400 mt-1">残り時間</div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3">
+          <button id="timerToggleBtn" onclick="handleTimerToggleClick()" class="px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base shadow-lg shadow-indigo-200 transition active:scale-95 flex items-center gap-2">
+            <i data-lucide="play" id="timerToggleIcon" class="w-5 h-5"></i>
+            <span id="timerToggleText">スタート</span>
+          </button>
+          <button onclick="resetCurrentTimer()" class="p-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold transition">
+            <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 下部アクションボタン -->
+      <div class="w-full grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 flex-shrink-0" id="bottomActionRow">
+        <button id="giveUpBtn" onclick="finishTask(true)" class="py-3 px-4 rounded-xl border-2 border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5">
+          <i data-lucide="help-circle" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
+          <span>わからない (後でやる・質問)</span>
+        </button>
+        <button id="completeBtn" onclick="handleCompleteBtnClick()" class="py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2">
+          <i data-lucide="check" id="completeBtnIcon" class="w-4 h-4"></i>
+          <span id="completeBtnText">できた！とけた！</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- 3. 保護者・設定モード画面 -->
+  <!-- ======================================================== -->
+  <main id="parentView" class="hidden flex-1 min-h-0 flex overflow-hidden p-4 gap-4">
+    <section class="w-4/12 min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+        <div>
+          <h2 class="text-xs font-black text-slate-700 flex items-center gap-1.5">
+            <i data-lucide="database" class="w-4 h-4 text-indigo-600"></i>
+            科目別マスター設定
+          </h2>
+          <p class="text-[10px] text-slate-400">クリックで右側の選択中曜日に配置</p>
+        </div>
+        <div>
+          <input type="file" id="masterFileInput" accept=".md,.txt" class="hidden" onchange="handleMasterFileUpload(event)">
+          <button onclick="triggerMasterFileLoad()" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold flex items-center gap-1 transition">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+            master_subject.md 読込
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 min-h-0 overflow-y-auto p-3 custom-scroll touch-scroll flex flex-col gap-3" id="masterPaletteContainer"></div>
+    </section>
+
+    <section class="w-8/12 min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="flex p-1 bg-slate-200 rounded-xl font-bold text-xs">
+            <button id="parentWeek1Btn" onclick="switchParentWeek(1)" class="px-4 py-1.5 rounded-lg bg-white shadow-sm text-indigo-600 transition">第1週</button>
+            <button id="parentWeek2Btn" onclick="switchParentWeek(2)" class="px-4 py-1.5 rounded-lg text-slate-600 transition">第2週（テスト週）</button>
+          </div>
+          <span class="text-xs font-bold text-slate-500">
+            編集中の曜日: <span id="currentParentDayBadge" class="text-indigo-600 font-black">日曜日</span>
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="download2WeekMarkdown()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1 transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            2week.md 出力
+          </button>
+          <button onclick="applyToDefaultAndSave()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black shadow-sm flex items-center gap-1 transition">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            デフォルトとして保存・適用
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-100/70 text-center text-xs font-bold flex-shrink-0" id="parentDayTabs"></div>
+      <div class="flex-1 min-h-0 overflow-y-auto p-4 custom-scroll touch-scroll flex flex-col gap-2" id="parentDayTasksContainer"></div>
+
+      <div class="p-3 bg-slate-50 border-t border-slate-200 flex-shrink-0 flex items-center justify-between text-xs font-bold text-slate-500">
+        <span>この日の標準合計: <span id="parentDayTotalMinutes" class="text-slate-800 font-black text-sm">0</span> 分</span>
+        <span class="text-[11px] text-slate-400">※左のマスターをクリックするとここに追加されます</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- 4. モーダル群 -->
+  <!-- ======================================================== -->
+
+  <!-- 子ども用：タスク追加モーダル -->
+  <div id="addTaskModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150" onclick="event.stopPropagation()">
+      <h3 class="text-sm font-black text-slate-800 mb-3 flex items-center gap-1.5">
+        <i data-lucide="plus-circle" class="w-4 h-4 text-indigo-600"></i>
+        今日の予定にタスクを追加
+      </h3>
+      <div class="space-y-3 text-xs font-bold">
+        <div>
+          <label class="block text-slate-500 mb-1">科目（大項目）</label>
+          <select id="modalMajorInput" onchange="onModalMajorChanged()" class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 font-bold"></select>
+        </div>
+        <div>
+          <label class="block text-slate-500 mb-1">小項目（マスターから選択、または直接入力）</label>
+          <select id="modalPresetSubSelect" onchange="onModalPresetSubChanged()" class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 font-bold mb-1.5"></select>
+          <input type="text" id="modalSubNameInput" placeholder="直接項目名を入力することもできます" class="w-full p-2 border border-slate-200 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-slate-500 mb-1">時間 (分)</label>
+          <input type="number" id="modalMinutesInput" value="20" min="5" step="5" class="w-full p-2 border border-slate-200 rounded-lg font-bold">
+        </div>
+      </div>
+      <div class="flex gap-2 mt-4">
+        <button onclick="closeAddTaskModal()" class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs">キャンセル</button>
+        <button onclick="confirmAddTaskModal()" class="flex-1 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs shadow-md">追加する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 今日の勉強スタートモーダル -->
+  <div id="startStudyModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+            <i data-lucide="rocket" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-base font-black text-slate-800">今日の勉強をスタート！</h3>
+        </div>
+        <button onclick="closeStartStudyModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      
+      <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+        <span>学校帰宅: <strong id="modalReturnTimeText" class="text-blue-600">--:--</strong></span>
+        <span>今日の勉強量: <strong id="modalTotalStudyMins" class="text-indigo-600">0</strong>分</span>
+      </div>
+
+      <div class="space-y-3 text-xs font-bold mb-4">
+        <div>
+          <label class="block text-slate-600 mb-1">何時までに終わらせたい？（目標終了時刻）</label>
+          <input type="time" id="targetEndTimeInput" step="300" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-base font-black text-slate-800 focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-slate-600 mb-1">今日の習い事・予定（あればメモ）</label>
+          <input type="text" id="targetLessonInput" placeholder="例: 日能研 17:00〜、NITTAI、ピアノ、なし" class="w-full p-2.5 border border-slate-200 rounded-xl">
+        </div>
+      </div>
+
+      <div id="studyStartCommentBox" class="p-3.5 rounded-xl border bg-slate-50 text-slate-700 text-xs font-bold leading-relaxed mb-5 hidden"></div>
+
+      <div class="flex gap-2">
+        <button onclick="closeStartStudyModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs transition">戻る</button>
+        <button id="confirmStudyStartBtn" onclick="confirmStartStudy()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs shadow-md transition">
+          気合いを入れて開始！
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- （１）終わった後のダイアログ（特大ボタン・指定文言） -->
+  <div id="completeCheckModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 text-center" onclick="event.stopPropagation()">
+      <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+        <i data-lucide="check-check" class="w-8 h-8"></i>
+      </div>
+      <h3 class="text-xl font-black text-slate-800 mb-1">お疲れさま！よく解いたね！</h3>
+      <p class="text-sm font-bold text-slate-500 mb-6">丸つけの状態はどうなってる？</p>
+
+      <div class="space-y-3.5">
+        <!-- 選択肢1：丸つけも直しもおわり！ (特大・緑) -->
+        <button onclick="chooseCompleteAction('done')" class="w-full py-4 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg rounded-2xl shadow-lg shadow-emerald-200 transition flex items-center justify-center gap-2 active:scale-98">
+          <i data-lucide="sparkles" class="w-6 h-6"></i>
+          <span>丸つけも直しもおわり！</span>
+        </button>
+
+        <!-- 選択肢2：丸つけしてもらう！ (特大・オレンジ) -->
+        <button onclick="chooseCompleteAction('ask')" class="w-full py-4 px-5 bg-amber-500 hover:bg-amber-600 text-white font-black text-lg rounded-2xl shadow-lg shadow-amber-200 transition flex items-center justify-center gap-2 active:scale-98">
+          <i data-lucide="send" class="w-6 h-6"></i>
+          <span>丸つけしてもらう！</span>
+        </button>
+
+        <button onclick="closeCompleteCheckModal()" class="w-full py-2.5 text-slate-400 hover:text-slate-600 font-bold text-xs mt-2">
+          キャンセル
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- （１）休憩時間選択モーダル（丸つけも直しもおわり！完了ボタンを新設） -->
+  <div id="breakSelectModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center" onclick="event.stopPropagation()">
+      <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
+        <i data-lucide="coffee" class="w-7 h-7"></i>
+      </div>
+      <h3 id="breakModalTitle" class="text-base font-black text-slate-800 mb-1">丸つけをお願いしてきたよ！</h3>
+      <p id="breakModalSubtitle" class="text-xs font-bold text-slate-500 mb-4">どれくらい休憩する？</p>
+
+      <div class="grid grid-cols-3 gap-2 mb-3">
+        <button onclick="applySelectedBreak(5)" class="py-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 rounded-xl font-black text-sm transition">
+          5分
+        </button>
+        <button onclick="applySelectedBreak(10)" class="py-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 rounded-xl font-black text-sm transition">
+          10分
+        </button>
+        <button onclick="applySelectedBreak(25)" class="py-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 rounded-xl font-black text-sm transition">
+          25分
+        </button>
+      </div>
+
+      <!-- （１）丸つけ・直し完了ボタン（ここからタスクを即時完了できる） -->
+      <button id="directCompleteFromBreakBtn" onclick="completeCurrentTaskDirectlyFromBreak()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-xs shadow-md transition mb-2 flex items-center justify-center gap-1.5">
+        <i data-lucide="check-circle" class="w-4 h-4"></i>
+        <span>丸つけも直しもおわり！（タスク完了）</span>
+      </button>
+
+      <button id="skipBreakBtn" onclick="skipBreakAndProceed()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-black text-xs transition mb-2">
+        休憩なし（続けて次の勉強へ！）
+      </button>
+
+      <p class="text-[11px] text-slate-400">※時間を選ぶと休憩タイマーが自動でスタートします</p>
+    </div>
+  </div>
+
+  <!-- 5. 勉強終了・実績サマリーモーダル -->
+  <div id="allStudyCompleteModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 text-center animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col" onclick="event.stopPropagation()">
+      <div id="summaryIconContainer" class="w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
+        <i data-lucide="party-popper" id="summaryHeaderIcon" class="w-8 h-8"></i>
+      </div>
+      
+      <h3 id="summaryMainTitle" class="text-lg font-black text-slate-800 mb-1">🎉 今日の勉強が終わりました！</h3>
+      
+      <div id="summaryLessonBanner" class="p-2.5 bg-sky-50 border-2 border-sky-300 rounded-2xl text-sky-900 font-black text-xs my-2 flex items-center justify-center gap-2 shadow-sm">
+        <i data-lucide="backpack" class="w-4 h-4 text-sky-600"></i>
+        <span>忘れ物はない？「習い事の準備」をしよう！</span>
+      </div>
+
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 my-2 text-left">
+        <div class="flex items-center justify-between text-xs font-bold text-slate-600 mb-1.5">
+          <span>時間達成率: <strong id="summaryProgressPercent" class="text-base font-black text-indigo-600">0%</strong></span>
+          <span class="text-[11px] text-slate-400">完了 <strong id="summaryCompletedMins" class="text-slate-700">0</strong>分 / 予定 <strong id="summaryTotalMins" class="text-slate-700">0</strong>分</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+          <div id="summaryProgressBar" class="bg-indigo-600 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 mt-2">
+          <span>開始: <strong id="summaryStartText" class="text-slate-800">--:--</strong></span>
+          <span>終了: <strong id="summaryFinishText" class="text-emerald-600">--:--</strong></span>
+        </div>
+      </div>
+
+      <div id="uncompletedSection" class="hidden mb-2 text-left">
+        <div class="font-black text-xs text-rose-600 mb-1 flex items-center gap-1">
+          <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+          <span>やりきれなかったこと（次回に持ち越し）:</span>
+        </div>
+        <div class="bg-rose-50/70 border border-rose-200 rounded-xl p-2 max-h-24 overflow-y-auto custom-scroll touch-scroll">
+          <ul id="uncompletedTasksList" class="space-y-1 text-xs font-bold text-rose-900"></ul>
+        </div>
+      </div>
+
+      <div class="text-left font-black text-xs text-slate-600 mb-1 flex items-center gap-1">
+        <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i>
+        <span>今日の実績ログ一覧:</span>
+      </div>
+
+      <div class="flex-1 min-h-0 overflow-y-auto custom-scroll touch-scroll border border-slate-200 rounded-xl mb-3 bg-slate-50">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-200/70 text-slate-600 font-black sticky top-0">
+            <tr>
+              <th class="p-2">項目名</th>
+              <th class="p-2 text-center">開始</th>
+              <th class="p-2 text-center">終了</th>
+              <th class="p-2 text-right">状態</th>
+            </tr>
+          </thead>
+          <tbody id="summaryTasksTableBody" class="divide-y divide-slate-200 font-bold text-slate-700"></tbody>
+        </table>
+      </div>
+
+      <button onclick="closeAllStudyCompleteModal()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs shadow-md transition flex items-center justify-center gap-1.5">
+        <i data-lucide="check" class="w-4 h-4"></i>
+        <span>閉じる</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const DAYS_ORDER = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
+
+    const DEFAULT_RETURN_TIMES = {
+      "月曜日": "14:40",
+      "火曜日": "15:40",
+      "水曜日": "13:30",
+      "木曜日": "15:40",
+      "金曜日": "14:40",
+      "土曜日": "09:00",
+      "日曜日": "09:00"
+    };
+
+    const DEFAULT_MASTER_MD = `# 科目別マスター設定
+
+## 学校宿題
+- 音読・計算ドリル: 15
+- 宿題プリント: 20
+- 自主学習・日記: 20
+
+## 算数
+- 基礎力トレーニング: 15
+- 学び直し①: 25
+- 学び直し②: 30
+- 学び直し③: 30
+- 自分で: 25
+- デイリーチェック直し: 20
+
+## 国語
+- 漢字学習・直し: 15
+- 言葉ナビ: 15
+- デイリーチェック直し: 15
+- 読解デイリー演習: 25
+- 記述の演習: 30
+
+## 理科
+- デイリーチェック直し: 15
+- ポイントチェック・テーマ: 15
+- 確認問題[1]〜[3]: 20
+- 確認問題[4]〜[6]: 25
+
+## 社会
+- デイリーチェック直し: 15
+- テーマ確認・白地図: 20
+- 要点チェック・問題: 20
+
+## 習い事
+- 日能研: 180
+- NITTAI: 240
+- スイミング: 60
+- ピアノ: 45
+
+## 休憩
+- 短い息抜き: 10
+- リフレッシュ休憩: 15
+- おやつ休憩: 20
+`;
+
+    let isParentMode = false;
+    let masterData = {};
+    let twoWeekSchedule = { 1: {}, 2: {} };
+
+    let currentTasks = [];
+    let activeTaskIndex = null;
+    let timerInterval = null;
+    let remainingSeconds = 0;
+    let totalDurationSeconds = 0;
+    let isRunning = false;
+
+    let parentCurrentWeek = 1;
+    let parentCurrentDay = "日曜日";
+
+    let studyStartTime = null;
+    let studyFinishTime = null;
+    let targetFinishTime = null;
+
+    let currentBreakContext = 'done';
+    let pendingStartTaskIndex = null;
+
+    // Web Audio API
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playTone(freq, type, duration, delay = 0) {
+      setTimeout(() => {
+        try {
+          const ctx = getAudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + duration);
+        } catch(e) {}
+      }, delay);
+    }
+
+    function soundSuccess() {
+      playTone(523.25, 'triangle', 0.15, 0);
+      playTone(659.25, 'triangle', 0.15, 120);
+      playTone(783.99, 'triangle', 0.25, 240);
+      playTone(1046.50, 'triangle', 0.4, 360);
+    }
+    function soundFanfare() {
+      playTone(523.25, 'triangle', 0.15, 0);
+      playTone(659.25, 'triangle', 0.15, 120);
+      playTone(783.99, 'triangle', 0.15, 240);
+      playTone(1046.50, 'triangle', 0.35, 360);
+      playTone(880.00, 'triangle', 0.2, 550);
+      playTone(1046.50, 'triangle', 0.6, 750);
+    }
+    function soundAlarm() {
+      for(let i=0; i<3; i++) {
+        playTone(880, 'sine', 0.1, i * 200);
+        playTone(1320, 'sine', 0.15, i * 200 + 100);
+      }
+    }
+    function soundWarningChime() {
+      playTone(587.33, 'sine', 0.2, 0);
+      playTone(880.00, 'sine', 0.3, 150);
+    }
+
+    function formatTimeStr(date) {
+      return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    }
+
+    function getTodayDayName() {
+      const idx = new Date().getDay();
+      return DAYS_ORDER[idx];
+    }
+
+    function getTodayReturnTime() {
+      const day = getTodayDayName();
+      return DEFAULT_RETURN_TIMES[day] || "15:00";
+    }
+
+    function isLessonTask(task) {
+      if (task.category === 'lesson') return true;
+      const combined = `${task.majorCategory || ''} ${task.name || ''}`;
+      return combined.includes('習い事') || combined.includes('日能研') || combined.includes('NITTAI') || combined.includes('スイミング') || combined.includes('塾');
+    }
+
+    function detectCategory(name) {
+      if (name.includes('日能研') || name.includes('習い事') || name.includes('NITTAI') || name.includes('スイミング') || name.includes('塾')) return 'lesson';
+      if (name.includes('宿題') || name.includes('学校')) return 'school';
+      if (name.includes('算数') || name.includes('計算') || name.includes('基礎トレ') || name.includes('学び直し')) return 'math';
+      if (name.includes('国語') || name.includes('漢字') || name.includes('言葉') || name.includes('読解')) return 'japanese';
+      if (name.includes('理科')) return 'science';
+      if (name.includes('社会') || name.includes('白地図')) return 'social';
+      if (name.includes('休憩')) return 'break';
+      return 'other';
+    }
+
+    function getCategoryStyle(cat) {
+      switch(cat) {
+        case 'school': return { bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-200', tagBg: 'bg-amber-100', tagText: 'text-amber-800', label: '学校宿題', icon: '🏫' };
+        case 'math': return { bg: 'bg-blue-50', text: 'text-blue-900', border: 'border-blue-200', tagBg: 'bg-blue-100', tagText: 'text-blue-800', label: '算数', icon: '📐' };
+        case 'japanese': return { bg: 'bg-rose-50', text: 'text-rose-900', border: 'border-rose-200', tagBg: 'bg-rose-100', tagText: 'text-rose-800', label: '国語', icon: '📖' };
+        case 'science': return { bg: 'bg-emerald-50', text: 'text-emerald-900', border: 'border-emerald-200', tagBg: 'bg-emerald-100', tagText: 'text-emerald-800', label: '理科', icon: '🧪' };
+        case 'social': return { bg: 'bg-orange-50', text: 'text-orange-900', border: 'border-orange-200', tagBg: 'bg-orange-100', tagText: 'text-orange-800', label: '社会', icon: '🌏' };
+        case 'lesson': return { bg: 'bg-sky-50', text: 'text-sky-900', border: 'border-sky-200', tagBg: 'bg-sky-100', tagText: 'text-sky-800', label: '習い事', icon: '🎒' };
+        case 'break': return { bg: 'bg-purple-50', text: 'text-purple-900', border: 'border-purple-200', tagBg: 'bg-purple-100', tagText: 'text-purple-800', label: '休憩', icon: '☕' };
+        default: return { bg: 'bg-slate-50', text: 'text-slate-900', border: 'border-slate-200', tagBg: 'bg-slate-100', tagText: 'text-slate-800', label: 'その他', icon: '📝' };
+      }
+    }
+
+    function parseMasterMarkdown(mdText) {
+      const result = {};
+      let currentMajor = "その他";
+      const lines = mdText.split('\n');
+
+      for (let raw of lines) {
+        const line = raw.trim();
+        if (!line) continue;
+        if (line.startsWith('##')) {
+          currentMajor = line.replace('##', '').trim();
+          if (!result[currentMajor]) result[currentMajor] = [];
+        } else if (line.startsWith('-') || line.startsWith('*')) {
+          const content = line.substring(1).trim();
+          const match = content.match(/^([^:,\(]+)(?:[:,\(])\s*(\d+)/);
+          if (match) {
+            const name = match[1].trim();
+            const minutes = parseInt(match[2], 10);
+            if (!result[currentMajor]) result[currentMajor] = [];
+            result[currentMajor].push({
+              major: currentMajor,
+              name,
+              minutes,
+              category: detectCategory(currentMajor + ' ' + name)
+            });
+          }
+        }
+      }
+      return result;
+    }
+
+    async function triggerMasterFileLoad() {
+      try {
+        const response = await fetch('./master_subject.md');
+        if (response.ok) {
+          const text = await response.text();
+          masterData = parseMasterMarkdown(text);
+          localStorage.setItem('study_quest_master_md', text);
+          renderMasterPalette();
+          alert("同階層の master_subject.md を正常に読み込みました！");
+          return;
+        }
+      } catch (e) {}
+      document.getElementById('masterFileInput').click();
+    }
+
+    function handleMasterFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        masterData = parseMasterMarkdown(event.target.result);
+        localStorage.setItem('study_quest_master_md', event.target.result);
+        renderMasterPalette();
+        alert(`${file.name} を読み込みました！`);
+      };
+      reader.readAsText(file);
+    }
+
+    // （２）メイン画面からの朝勉スタート
+    function startMorningStudy() {
+      const now = new Date();
+      const timeStr = formatTimeStr(now);
+      studyStartTime = timeStr;
+      document.getElementById('studyStartedBadge').classList.remove('hidden');
+      document.getElementById('studyStartedText').textContent = `朝勉開始: ${timeStr}`;
+      soundSuccess();
+      alert(`🌅 朝勉スタート（${timeStr}）！\n朝の集中力はゴールデンタイム！計算や漢字を一気に終わらせよう！`);
+      saveState();
+    }
+
+    // （２）メイン画面からの勉強終了アクション
+    function finishStudySessionManual(title) {
+      if (!confirm(`${title}を終了しますか？実績とやりきれなかったことを確認します。`)) return;
+      clearInterval(timerInterval);
+      isRunning = false;
+      const now = new Date();
+      studyFinishTime = formatTimeStr(now);
+
+      document.getElementById('studyFinishedBadge').classList.remove('hidden');
+      document.getElementById('studyFinishedText').textContent = `終了: ${studyFinishTime}`;
+
+      showStudySummaryModal(title);
+      saveState();
+    }
+
+    function handleTimerToggleClick() {
+      if (!studyStartTime) {
+        if (activeTaskIndex === null && currentTasks.length > 0) {
+          selectTask(0);
+        }
+        pendingStartTaskIndex = activeTaskIndex;
+        openStartStudyModal();
+        return;
+      }
+      toggleTimer();
+    }
+
+    function openStartStudyModal() {
+      const remainingMinutes = currentTasks
+        .filter(t => !isLessonTask(t) && t.status !== 'completed')
+        .reduce((sum, t) => sum + t.minutes, 0);
+      document.getElementById('modalTotalStudyMins').textContent = remainingMinutes;
+
+      const returnTime = getTodayReturnTime();
+      document.getElementById('modalReturnTimeText').textContent = `${getTodayDayName()} ${returnTime}`;
+
+      const dinnerVal = document.getElementById('dinnerTimeInput').value || "19:00";
+      const targetInput = document.getElementById('targetEndTimeInput');
+      targetInput.value = dinnerVal;
+
+      calculateStudyStartComment();
+      targetInput.oninput = calculateStudyStartComment;
+      targetInput.onchange = calculateStudyStartComment;
+      document.getElementById('targetLessonInput').oninput = calculateStudyStartComment;
+
+      document.getElementById('startStudyModal').classList.remove('hidden');
+    }
+
+    function closeStartStudyModal() {
+      document.getElementById('startStudyModal').classList.add('hidden');
+      pendingStartTaskIndex = null;
+    }
+
+    function calculateStudyStartComment() {
+      const targetTimeVal = document.getElementById('targetEndTimeInput').value;
+      const commentBox = document.getElementById('studyStartCommentBox');
+      if (!targetTimeVal) {
+        commentBox.classList.add('hidden');
+        return;
+      }
+
+      const now = new Date();
+      const [tH, tM] = targetTimeVal.split(':').map(Number);
+      const targetDate = new Date();
+      targetDate.setHours(tH, tM, 0, 0);
+
+      const availableMinutes = Math.floor((targetDate.getTime() - now.getTime()) / 60000);
+      const totalMinutes = currentTasks
+        .filter(t => !isLessonTask(t) && t.status !== 'completed')
+        .reduce((sum, t) => sum + t.minutes, 0);
+      const lessonText = document.getElementById('targetLessonInput').value.trim();
+
+      const dayName = getTodayDayName();
+      let daySpecificNote = "";
+      if (dayName === "水曜日") daySpecificNote = "【水曜13:30の早帰りデー！】たっぷり時間があるチャンス！";
+      else if (dayName === "火曜日" || dayName === "木曜日") daySpecificNote = "【15:40帰宅で遅めスタート】集中してテンポよく終わらせよう！";
+      else if (dayName === "月曜日" || dayName === "金曜日") daySpecificNote = "【14:40帰宅】標準的な放課後ペース！";
+
+      let comment = "";
+      let bgClass = "bg-blue-50 border-blue-200 text-blue-900";
+
+      if (availableMinutes <= 0) {
+        comment = `⚠️ あれ？目標時刻が今より前になっているよ！もう一度確認してみてね。`;
+        bgClass = "bg-rose-50 border-rose-200 text-rose-900";
+      } else {
+        const margin = availableMinutes - totalMinutes;
+        if (margin >= 30) {
+          comment = `✨ ${daySpecificNote}\n目標の${targetTimeVal}まで約${availableMinutes}分、勉強は${totalMinutes}分。なんと【${margin}分も自由時間】があるよ！サクッと終わらせて遊び倒そう！`;
+          bgClass = "bg-emerald-50 border-emerald-300 text-emerald-900";
+        } else if (margin >= 0) {
+          comment = `👍 ${daySpecificNote}\n目標の${targetTimeVal}までほぼピッタリ（余裕${margin}分）！途中で粘りすぎず、リズムよく進めていこう！`;
+          bgClass = "bg-indigo-50 border-indigo-200 text-indigo-900";
+        } else {
+          const shortage = Math.abs(margin);
+          comment = `🔥 ${daySpecificNote}\n目標の${targetTimeVal}に対して勉強量が【${shortage}分オーバー】してるよ！「わからない」を上手に使って、解けない問題は後回しにするのが勝負のカギだ！`;
+          bgClass = "bg-amber-50 border-amber-300 text-amber-900";
+        }
+
+        if (lessonText) {
+          comment += `\n（今日の予定「${lessonText}」の時間も忘れないようにね！）`;
+        }
+      }
+
+      commentBox.className = `p-3.5 rounded-xl border text-xs font-bold leading-relaxed mb-5 whitespace-pre-line ${bgClass}`;
+      commentBox.textContent = comment;
+      commentBox.classList.remove('hidden');
+    }
+
+    function confirmStartStudy() {
+      const now = new Date();
+      const timeStr = formatTimeStr(now);
+      studyStartTime = timeStr;
+      targetFinishTime = document.getElementById('targetEndTimeInput').value;
+
+      document.getElementById('studyStartedBadge').classList.remove('hidden');
+      document.getElementById('studyStartedText').textContent = `開始: ${timeStr}`;
+
+      if (targetFinishTime) {
+        document.getElementById('targetFinishDisplay').classList.remove('hidden');
+        document.getElementById('targetFinishTimeText').textContent = targetFinishTime;
+      }
+
+      closeStartStudyModal();
+      soundSuccess();
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+
+      if (pendingStartTaskIndex !== null && currentTasks[pendingStartTaskIndex]) {
+        selectTask(pendingStartTaskIndex);
+        toggleTimer();
+      } else {
+        const firstStudyIndex = currentTasks.findIndex(t => !isLessonTask(t) && t.status !== 'completed');
+        if (firstStudyIndex !== -1) {
+          selectTask(firstStudyIndex);
+          toggleTimer();
+        }
+      }
+      pendingStartTaskIndex = null;
+      saveState();
+    }
+
+    // タスク追加モーダル
+    function openAddTaskModal() {
+      const majorSelect = document.getElementById('modalMajorInput');
+      majorSelect.innerHTML = '';
+      const majors = Object.keys(masterData);
+      if (majors.length === 0) {
+        ['学校宿題', '算数', '国語', '理科', '社会', '習い事', '休憩'].forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m;
+          opt.textContent = m;
+          majorSelect.appendChild(opt);
+        });
+      } else {
+        majors.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m;
+          opt.textContent = m;
+          majorSelect.appendChild(opt);
+        });
+      }
+      onModalMajorChanged();
+      document.getElementById('addTaskModal').classList.remove('hidden');
+    }
+
+    function onModalMajorChanged() {
+      const major = document.getElementById('modalMajorInput').value;
+      const subSelect = document.getElementById('modalPresetSubSelect');
+      subSelect.innerHTML = '<option value="">-- マスターから小項目を選ぶ --</option>';
+      const items = masterData[major] || [];
+      items.forEach((item, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `${item.name} (${item.minutes}分)`;
+        subSelect.appendChild(opt);
+      });
+      document.getElementById('modalSubNameInput').value = '';
+      if (items.length > 0) {
+        document.getElementById('modalMinutesInput').value = items[0].minutes;
+      }
+    }
+
+    function onModalPresetSubChanged() {
+      const major = document.getElementById('modalMajorInput').value;
+      const subIdx = document.getElementById('modalPresetSubSelect').value;
+      if (subIdx !== "") {
+        const item = masterData[major][parseInt(subIdx, 10)];
+        if (item) {
+          document.getElementById('modalSubNameInput').value = item.name;
+          document.getElementById('modalMinutesInput').value = item.minutes;
+        }
+      }
+    }
+
+    function closeAddTaskModal() {
+      document.getElementById('addTaskModal').classList.add('hidden');
+    }
+
+    function confirmAddTaskModal() {
+      const major = document.getElementById('modalMajorInput').value;
+      const name = document.getElementById('modalSubNameInput').value.trim() || major;
+      const mins = parseInt(document.getElementById('modalMinutesInput').value, 10) || 15;
+
+      currentTasks.push({
+        id: Date.now() + Math.random(),
+        majorCategory: major,
+        name: name,
+        minutes: mins,
+        category: detectCategory(major + ' ' + name),
+        status: 'pending',
+        startTime: null,
+        finishTime: null
+      });
+      closeAddTaskModal();
+      renderTasks();
+      recalculateMetrics();
+      saveState();
+    }
+
+    // 丸付け判定
+    function handleCompleteBtnClick() {
+      if (activeTaskIndex === null) {
+        alert("まず取り組むタスクを選んでね！");
+        return;
+      }
+      const currentTask = currentTasks[activeTaskIndex];
+      if (currentTask && currentTask.category === 'break') {
+        finishTask(false);
+        return;
+      }
+      openCompleteCheckModal();
+    }
+
+    function openCompleteCheckModal() {
+      document.getElementById('completeCheckModal').classList.remove('hidden');
+    }
+
+    function closeCompleteCheckModal() {
+      document.getElementById('completeCheckModal').classList.add('hidden');
+    }
+
+    // （１）終わった後のダイアログ処理
+    function chooseCompleteAction(action) {
+      closeCompleteCheckModal();
+      if (action === 'done') {
+        // 丸つけも直しもおわり！
+        if (activeTaskIndex !== null) {
+          const task = currentTasks[activeTaskIndex];
+          task.status = 'completed';
+          if (!task.finishTime) task.finishTime = formatTimeStr(new Date());
+
+          clearInterval(timerInterval);
+          isRunning = false;
+          soundSuccess();
+          confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+          renderTasks();
+          recalculateMetrics();
+          saveState();
+
+          if (checkAllStudyCompleted()) {
+            triggerAllStudyCompleteCelebration();
+            return;
+          }
+        }
+        openBreakSelectModal('done');
+
+      } else if (action === 'ask') {
+        // 丸つけしてもらう！
+        if (activeTaskIndex !== null) {
+          currentTasks[activeTaskIndex].status = 'grading';
+          clearInterval(timerInterval);
+          isRunning = false;
+          renderTasks();
+          saveState();
+        }
+        openBreakSelectModal('ask');
+      }
+    }
+
+    function openBreakSelectModal(context) {
+      currentBreakContext = context;
+      const titleEl = document.getElementById('breakModalTitle');
+      const subtitleEl = document.getElementById('breakModalSubtitle');
+      const skipBtn = document.getElementById('skipBreakBtn');
+      const directCompleteBtn = document.getElementById('directCompleteFromBreakBtn');
+
+      if (context === 'ask') {
+        titleEl.textContent = "丸つけをお願いしてきたよ！";
+        subtitleEl.textContent = "丸つけの間にどれくらい休憩する？";
+        skipBtn.classList.add('hidden');
+        directCompleteBtn.classList.remove('hidden'); // （１）丸つけ中休憩の中に完了ボタンを表示
+      } else {
+        titleEl.textContent = "🎉 タスク完了！お疲れさま！";
+        subtitleEl.textContent = "次の勉強の前に少し休憩する？";
+        skipBtn.classList.remove('hidden');
+        directCompleteBtn.classList.add('hidden');
+      }
+
+      document.getElementById('breakSelectModal').classList.remove('hidden');
+    }
+
+    // （１）丸つけ中休憩から直接「丸つけも直しもおわり！」を押して完了
+    function completeCurrentTaskDirectlyFromBreak() {
+      document.getElementById('breakSelectModal').classList.add('hidden');
+      if (activeTaskIndex !== null) {
+        const task = currentTasks[activeTaskIndex];
+        task.status = 'completed';
+        if (!task.finishTime) task.finishTime = formatTimeStr(new Date());
+
+        soundSuccess();
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
+        renderTasks();
+        recalculateMetrics();
+        saveState();
+
+        if (checkAllStudyCompleted()) {
+          triggerAllStudyCompleteCelebration();
+          return;
+        }
+
+        const nextIndex = currentTasks.findIndex((t, idx) => idx > activeTaskIndex && !isLessonTask(t) && t.status !== 'completed');
+        if (nextIndex !== -1) selectTask(nextIndex);
+        else {
+          activeTaskIndex = null;
+          resetTimerDisplay();
+        }
+      }
+    }
+
+    function applySelectedBreak(minutes) {
+      document.getElementById('breakSelectModal').classList.add('hidden');
+
+      const breakName = currentBreakContext === 'ask' 
+        ? `丸つけ待ち休憩 (${minutes}分)` 
+        : `リフレッシュ休憩 (${minutes}分)`;
+
+      const breakTask = {
+        id: Date.now() + Math.random(),
+        majorCategory: '休憩',
+        name: breakName,
+        minutes: minutes,
+        category: 'break',
+        status: 'active',
+        startTime: formatTimeStr(new Date()),
+        finishTime: null
+      };
+
+      const insertIndex = activeTaskIndex !== null ? activeTaskIndex + 1 : currentTasks.length;
+      currentTasks.splice(insertIndex, 0, breakTask);
+
+      selectTask(insertIndex);
+      toggleTimer();
+      soundWarningChime();
+    }
+
+    function skipBreakAndProceed() {
+      document.getElementById('breakSelectModal').classList.add('hidden');
+      const nextIndex = currentTasks.findIndex((t, idx) => idx > activeTaskIndex && !isLessonTask(t) && t.status !== 'completed');
+      if (nextIndex !== -1) selectTask(nextIndex);
+      else {
+        activeTaskIndex = null;
+        resetTimerDisplay();
+      }
+      renderTasks();
+      recalculateMetrics();
+      saveState();
+    }
+
+    function checkAllStudyCompleted() {
+      const studyTasks = currentTasks.filter(t => !isLessonTask(t));
+      if (studyTasks.length === 0) return false;
+      return studyTasks.every(t => t.status === 'completed');
+    }
+
+    function triggerAllStudyCompleteCelebration() {
+      const now = new Date();
+      studyFinishTime = formatTimeStr(now);
+
+      document.getElementById('studyFinishedBadge').classList.remove('hidden');
+      document.getElementById('studyFinishedText').textContent = `終了: ${studyFinishTime}`;
+
+      soundFanfare();
+      confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+      setTimeout(() => {
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
+      }, 350);
+
+      showStudySummaryModal("今日の勉強完了");
+    }
+
+    function showStudySummaryModal(typeTitle) {
+      const studyTasks = currentTasks.filter(t => !isLessonTask(t));
+      const totalPlannedMins = studyTasks.reduce((sum, t) => sum + t.minutes, 0);
+      const completedMins = studyTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.minutes, 0);
+      const percent = totalPlannedMins > 0 ? Math.round((completedMins / totalPlannedMins) * 100) : 0;
+      const uncompletedTasks = studyTasks.filter(t => t.status !== 'completed');
+
+      const titleEl = document.getElementById('summaryMainTitle');
+      const iconContainer = document.getElementById('summaryIconContainer');
+      const headerIcon = document.getElementById('summaryHeaderIcon');
+      const lessonBanner = document.getElementById('summaryLessonBanner');
+
+      if (uncompletedTasks.length === 0) {
+        titleEl.textContent = `🎉 ${typeTitle}がすべて終わりました！完璧！`;
+        iconContainer.className = "w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm";
+        headerIcon.setAttribute('data-lucide', 'party-popper');
+        lessonBanner.classList.remove('hidden');
+      } else {
+        titleEl.textContent = `お疲れさま！${typeTitle}を終了しました`;
+        iconContainer.className = "w-14 h-14 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm";
+        headerIcon.setAttribute('data-lucide', 'award');
+        lessonBanner.classList.remove('hidden');
+      }
+
+      document.getElementById('summaryProgressPercent').textContent = `${percent}%`;
+      document.getElementById('summaryCompletedMins').textContent = completedMins;
+      document.getElementById('summaryTotalMins').textContent = totalPlannedMins;
+      document.getElementById('summaryProgressBar').style.width = `${percent}%`;
+
+      document.getElementById('summaryStartText').textContent = studyStartTime || "--:--";
+      document.getElementById('summaryFinishText').textContent = studyFinishTime || "--:--";
+
+      const uncompletedSec = document.getElementById('uncompletedSection');
+      const uncompletedList = document.getElementById('uncompletedTasksList');
+      uncompletedList.innerHTML = '';
+
+      if (uncompletedTasks.length > 0) {
+        uncompletedSec.classList.remove('hidden');
+        uncompletedTasks.forEach(t => {
+          const li = document.createElement('li');
+          li.className = "flex items-center justify-between";
+          li.innerHTML = `
+            <span>• [${t.majorCategory}] ${t.name}</span>
+            <span class="text-rose-500 font-black">${t.minutes}分</span>
+          `;
+          uncompletedList.appendChild(li);
+        });
+      } else {
+        uncompletedSec.classList.add('hidden');
+      }
+
+      const tbody = document.getElementById('summaryTasksTableBody');
+      tbody.innerHTML = '';
+
+      currentTasks.forEach(task => {
+        const tr = document.createElement('tr');
+        const style = getCategoryStyle(task.category);
+        const startStr = task.startTime || '-';
+        const finishStr = task.finishTime || '-';
+        let statusBadge = `<span class="text-slate-400">未完了</span>`;
+
+        if (task.status === 'completed') {
+          statusBadge = `<span class="text-emerald-600 font-black">✓ 完了</span>`;
+        } else if (task.status === 'grading') {
+          statusBadge = `<span class="text-purple-600 font-black">✎ 丸つけ中</span>`;
+        } else if (task.status === 'stopped') {
+          statusBadge = `<span class="text-amber-600 font-black">？ わからない</span>`;
+        }
+
+        tr.innerHTML = `
+          <td class="p-2">
+            <div class="flex items-center gap-1.5">
+              <span>${style.icon}</span>
+              <span class="text-[9px] px-1 py-0.2 bg-white rounded border border-slate-200 text-slate-500">${task.majorCategory}</span>
+              <span class="font-black truncate ${task.status === 'completed' ? 'text-slate-800' : 'text-slate-400'}">${task.name}</span>
+            </div>
+          </td>
+          <td class="p-2 text-center font-mono text-slate-500">${startStr}</td>
+          <td class="p-2 text-center font-mono text-slate-500">${finishStr}</td>
+          <td class="p-2 text-right font-bold">${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+      document.getElementById('allStudyCompleteModal').classList.remove('hidden');
+      saveState();
+    }
+
+    function closeAllStudyCompleteModal() {
+      document.getElementById('allStudyCompleteModal').classList.add('hidden');
+    }
+
+    // 左側リスト描画
+    function renderTasks() {
+      const taskContainer = document.getElementById('taskListContainer');
+      const lessonContainer = document.getElementById('lessonListContainer');
+      taskContainer.innerHTML = '';
+      lessonContainer.innerHTML = '';
+
+      const studyTasks = [];
+      const lessonTasks = [];
+
+      currentTasks.forEach((task, index) => {
+        if (isLessonTask(task)) lessonTasks.push({ task, index });
+        else studyTasks.push({ task, index });
+      });
+
+      if (studyTasks.length === 0) {
+        taskContainer.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-slate-300 py-10">
+            <i data-lucide="clipboard-list" class="w-10 h-10 stroke-1 mb-2"></i>
+            <p class="text-xs font-bold text-center">ヘッダーの「今日勉スタート」または<br>「＋ 追加」から今日の勉強を入れてね</p>
+          </div>
+        `;
+      } else {
+        studyTasks.forEach(({ task, index }) => {
+          const style = getCategoryStyle(task.category);
+          const isActive = activeTaskIndex === index;
+          const isCompleted = task.status === 'completed';
+          const isStopped = task.status === 'stopped';
+          const isGrading = task.status === 'grading';
+
+          const el = document.createElement('div');
+          el.className = `p-2.5 rounded-xl border flex items-center justify-between flex-shrink-0 transition cursor-pointer ${style.bg} ${
+            isGrading ? 'border-purple-400 bg-purple-50/80 shadow-sm ring-1 ring-purple-300' : (isActive ? 'ring-2 ring-indigo-500 border-indigo-400 shadow-md' : style.border)
+          } ${isCompleted ? 'opacity-40 grayscale-[40%]' : ''}`;
+          el.onclick = () => selectTask(index);
+
+          el.innerHTML = `
+            <div class="flex items-center gap-2 flex-1 min-w-0">
+              <span class="text-sm">${style.icon}</span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-white/70 border border-slate-200 text-slate-600">${task.majorCategory}</span>
+                  <span class="text-xs font-black truncate ${isCompleted ? 'line-through text-slate-400' : style.text}">${task.name}</span>
+                  ${isStopped ? '<span class="text-[9px] px-1.5 py-0.2 bg-amber-200 text-amber-900 rounded font-black">？ わからない</span>' : ''}
+                  ${isGrading ? `
+                    <span class="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 bg-purple-600 text-white rounded-lg font-black shadow-sm animate-pulse">
+                      <i data-lucide="pen-tool" class="w-3 h-3"></i>
+                      <span>✎ 丸つけ中</span>
+                    </span>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5" onclick="event.stopPropagation()">
+              ${!isCompleted ? `
+                <div class="flex items-center gap-1 bg-white/80 px-1 py-0.5 rounded-lg border border-slate-200">
+                  <button onclick="adjustTaskMinutes(${index}, -5)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">-</button>
+                  <span class="text-[11px] font-black text-slate-700 min-w-6 text-center">${task.minutes}m</span>
+                  <button onclick="adjustTaskMinutes(${index}, 5)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">+</button>
+                </div>
+              ` : '<span class="text-emerald-600 font-bold text-xs mr-1">✓ 完了</span>'}
+              <button onclick="removeTask(${index})" class="p-1 text-slate-400 hover:text-rose-500 rounded">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          `;
+          taskContainer.appendChild(el);
+        });
+      }
+
+      if (lessonTasks.length === 0) {
+        lessonContainer.innerHTML = `
+          <div class="h-full flex items-center justify-center text-slate-300 text-xs font-bold py-4">
+            今日の習いごと・日能研の予定はありません
+          </div>
+        `;
+      } else {
+        lessonTasks.forEach(({ task, index }) => {
+          const style = getCategoryStyle(task.category);
+          const el = document.createElement('div');
+          el.className = `p-2 rounded-xl border flex items-center justify-between flex-shrink-0 ${style.bg} ${style.border}`;
+
+          el.innerHTML = `
+            <div class="flex items-center gap-2 flex-1 min-w-0">
+              <span class="text-sm">${style.icon}</span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-sky-100 border border-sky-300 text-sky-800">${task.majorCategory}</span>
+                  <span class="text-xs font-black truncate text-sky-950">${task.name}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5" onclick="event.stopPropagation()">
+              <div class="flex items-center gap-1 bg-white/80 px-1 py-0.5 rounded-lg border border-slate-200">
+                <button onclick="adjustTaskMinutes(${index}, -10)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">-</button>
+                <span class="text-[11px] font-black text-slate-700 min-w-8 text-center">${task.minutes}m</span>
+                <button onclick="adjustTaskMinutes(${index}, 10)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">+</button>
+              </div>
+              <button onclick="removeTask(${index})" class="p-1 text-slate-400 hover:text-rose-500 rounded">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          `;
+          lessonContainer.appendChild(el);
+        });
+      }
+      lucide.createIcons();
+    }
+
+    function adjustTaskMinutes(index, delta) {
+      if (!currentTasks[index]) return;
+      currentTasks[index].minutes = Math.max(5, currentTasks[index].minutes + delta);
+      if (activeTaskIndex === index) {
+        totalDurationSeconds = currentTasks[index].minutes * 60;
+        remainingSeconds = totalDurationSeconds;
+        updateTimerDisplay();
+      }
+      renderTasks();
+      recalculateMetrics();
+      saveState();
+    }
+
+    function removeTask(index) {
+      if (activeTaskIndex === index) {
+        clearInterval(timerInterval);
+        isRunning = false;
+        activeTaskIndex = null;
+      } else if (activeTaskIndex > index) {
+        activeTaskIndex--;
+      }
+      currentTasks.splice(index, 1);
+      renderTasks();
+      recalculateMetrics();
+      saveState();
+    }
+
+    function clearAllTasks() {
+      if (currentTasks.length === 0) return;
+      if (confirm("今日のリストを全消去しますか？")) {
+        clearInterval(timerInterval);
+        isRunning = false;
+        currentTasks = [];
+        activeTaskIndex = null;
+        renderTasks();
+        resetTimerDisplay();
+        recalculateMetrics();
+        saveState();
+      }
+    }
+
+    function selectTask(index) {
+      if (index < 0 || index >= currentTasks.length) return;
+      if (currentTasks[index].status === 'completed') return;
+
+      activeTaskIndex = index;
+      const task = currentTasks[index];
+
+      if (!task.startTime) {
+        task.startTime = formatTimeStr(new Date());
+      }
+
+      totalDurationSeconds = task.minutes * 60;
+      remainingSeconds = totalDurationSeconds;
+
+      currentTasks.forEach((t, i) => { if (t.status === 'active') t.status = 'pending'; });
+      if (task.status !== 'grading') {
+        task.status = 'active';
+      }
+
+      clearInterval(timerInterval);
+      isRunning = false;
+      updateTimerUI();
+      renderTasks();
+      saveState();
+    }
+
+    function toggleTimer() {
+      getAudioContext();
+      if (activeTaskIndex === null) {
+        const firstStudy = currentTasks.findIndex(t => !isLessonTask(t) && t.status !== 'completed');
+        if (firstStudy !== -1) selectTask(firstStudy);
+        else return;
+      }
+
+      if (isRunning) {
+        clearInterval(timerInterval);
+        isRunning = false;
+      } else {
+        isRunning = true;
+        timerInterval = setInterval(() => {
+          remainingSeconds--;
+          const currentTask = currentTasks[activeTaskIndex];
+          if (currentTask && currentTask.category === 'break' && remainingSeconds === 60) {
+            soundWarningChime();
+          }
+          if (remainingSeconds <= 0) {
+            clearInterval(timerInterval);
+            isRunning = false;
+            soundAlarm();
+            alert(`時間になりました！「${currentTask.name}」終了です。`);
+            finishTask(false);
+          }
+          updateTimerDisplay();
+        }, 1000);
+      }
+      updateTimerUI();
+    }
+
+    function resetCurrentTimer() {
+      if (activeTaskIndex === null) return;
+      clearInterval(timerInterval);
+      isRunning = false;
+      remainingSeconds = totalDurationSeconds;
+      updateTimerUI();
+    }
+
+    function finishTask(isGiveUp = false) {
+      if (activeTaskIndex === null) return;
+      clearInterval(timerInterval);
+      isRunning = false;
+
+      const task = currentTasks[activeTaskIndex];
+      task.status = isGiveUp ? 'stopped' : 'completed';
+      if (!task.finishTime) {
+        task.finishTime = formatTimeStr(new Date());
+      }
+
+      if (!isGiveUp) {
+        soundSuccess();
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+      }
+
+      if (!isGiveUp && checkAllStudyCompleted()) {
+        renderTasks();
+        recalculateMetrics();
+        triggerAllStudyCompleteCelebration();
+        return;
+      }
+
+      const nextIndex = currentTasks.findIndex((t, idx) => idx > activeTaskIndex && !isLessonTask(t) && t.status !== 'completed');
+      if (nextIndex !== -1) selectTask(nextIndex);
+      else {
+        activeTaskIndex = null;
+        resetTimerDisplay();
+      }
+
+      renderTasks();
+      recalculateMetrics();
+      saveState();
+    }
+
+    function updateTimerUI() {
+      const toggleBtn = document.getElementById('timerToggleBtn');
+      const toggleText = document.getElementById('timerToggleText');
+      const toggleIcon = document.getElementById('timerToggleIcon');
+      const timerPanel = document.getElementById('timerPanel');
+      const categoryBadge = document.getElementById('timerCategoryBadge');
+      const majorCategoryEl = document.getElementById('currentMajorCategory');
+      const titleEl = document.getElementById('currentTaskTitle');
+      const indexText = document.getElementById('currentTaskIndexText');
+      const nextStepBanner = document.getElementById('nextStepBanner');
+
+      const giveUpBtn = document.getElementById('giveUpBtn');
+      const completeBtn = document.getElementById('completeBtn');
+      const completeBtnText = document.getElementById('completeBtnText');
+      const completeBtnIcon = document.getElementById('completeBtnIcon');
+
+      if (activeTaskIndex !== null && currentTasks[activeTaskIndex]) {
+        const task = currentTasks[activeTaskIndex];
+        const style = getCategoryStyle(task.category);
+
+        titleEl.textContent = task.name;
+        majorCategoryEl.textContent = `[ ${task.majorCategory} ]`;
+        categoryBadge.textContent = style.label;
+        categoryBadge.className = `px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider ${style.tagBg} ${style.tagText}`;
+        indexText.textContent = `タスク ${activeTaskIndex + 1} / ${currentTasks.length}`;
+
+        if (task.category === 'break') {
+          timerPanel.classList.add('bg-purple-50/60');
+          giveUpBtn.classList.add('hidden');
+          
+          completeBtn.className = "col-span-2 py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black text-sm shadow-md shadow-purple-200 transition flex items-center justify-center gap-2";
+          completeBtnText.textContent = "☕ 休憩おわり！（次へ）";
+          completeBtnIcon.setAttribute('data-lucide', 'arrow-right');
+
+          const nextTask = currentTasks.slice(activeTaskIndex + 1).find(t => !isLessonTask(t) && t.category !== 'break' && t.status !== 'completed');
+          if (nextTask) {
+            document.getElementById('nextTaskName').textContent = `${nextTask.majorCategory}の「${nextTask.name}」`;
+            nextStepBanner.classList.remove('hidden');
+          } else {
+            nextStepBanner.classList.add('hidden');
+          }
+        } else {
+          timerPanel.classList.remove('bg-purple-50/60');
+          nextStepBanner.classList.add('hidden');
+          giveUpBtn.classList.remove('hidden');
+
+          completeBtn.className = "py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2";
+          completeBtnText.textContent = "できた！とけた！";
+          completeBtnIcon.setAttribute('data-lucide', 'check');
+        }
+      }
+
+      if (isRunning) {
+        toggleBtn.className = "px-8 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-base shadow-lg shadow-amber-200 transition active:scale-95 flex items-center gap-2";
+        toggleText.textContent = "一時停止";
+        toggleIcon.setAttribute('data-lucide', 'pause');
+      } else {
+        toggleBtn.className = "px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base shadow-lg shadow-indigo-200 transition active:scale-95 flex items-center gap-2";
+        toggleText.textContent = "スタート";
+        toggleIcon.setAttribute('data-lucide', 'play');
+      }
+      lucide.createIcons();
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const min = Math.floor(Math.max(0, remainingSeconds) / 60);
+      const sec = Math.max(0, remainingSeconds) % 60;
+      document.getElementById('timeRemainingDisplay').textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+      const ring = document.getElementById('timerRing');
+      const circumference = 2 * Math.PI * 98;
+      ring.style.strokeDashoffset = totalDurationSeconds > 0 ? circumference - (remainingSeconds / totalDurationSeconds) * circumference : 0;
+    }
+
+    function resetTimerDisplay() {
+      document.getElementById('currentMajorCategory').textContent = "";
+      document.getElementById('currentTaskTitle').textContent = "左のリストからタスクを選択";
+      document.getElementById('timerCategoryBadge').textContent = "準備中";
+      document.getElementById('timerCategoryBadge').className = "px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-slate-100 text-slate-600";
+      document.getElementById('currentTaskIndexText').textContent = "タスク未選択";
+      document.getElementById('nextStepBanner').classList.add('hidden');
+      document.getElementById('timerPanel').classList.remove('bg-purple-50/60');
+      document.getElementById('giveUpBtn').classList.remove('hidden');
+      document.getElementById('completeBtn').className = "py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2";
+      document.getElementById('completeBtnText').textContent = "できた！とけた！";
+      document.getElementById('completeBtnIcon').setAttribute('data-lucide', 'check');
+      remainingSeconds = 0;
+      totalDurationSeconds = 0;
+      updateTimerDisplay();
+      lucide.createIcons();
+    }
+
+    function recalculateMetrics() {
+      const remainingMinutes = currentTasks
+        .filter(t => !isLessonTask(t) && t.status !== 'completed')
+        .reduce((sum, t) => sum + t.minutes, 0);
+
+      document.getElementById('totalStudyMinutes').textContent = currentTasks
+        .filter(t => !isLessonTask(t))
+        .reduce((sum, t) => sum + t.minutes, 0);
+
+      const now = new Date();
+      const finishDate = new Date(now.getTime() + remainingMinutes * 60000);
+      document.getElementById('finishTimeText').textContent = formatTimeStr(finishDate);
+
+      const dinnerInput = document.getElementById('dinnerTimeInput').value;
+      if (dinnerInput) {
+        const [dH, dM] = dinnerInput.split(':').map(Number);
+        const dinnerDate = new Date();
+        dinnerDate.setHours(dH, dM, 0, 0);
+        const diff = Math.floor((dinnerDate.getTime() - finishDate.getTime()) / 60000);
+        const freeBanner = document.getElementById('freeTimeBanner');
+        const freeText = document.getElementById('freeTimeMinutes');
+        if (diff >= 0) {
+          freeText.textContent = diff;
+          freeBanner.className = "flex items-center gap-3 bg-emerald-50 border border-emerald-300 px-5 py-1.5 rounded-2xl shadow-sm transition";
+        } else {
+          freeText.textContent = 0;
+          freeBanner.className = "flex items-center gap-3 bg-rose-50 border border-rose-300 px-5 py-1.5 rounded-2xl shadow-sm transition";
+        }
+      }
+    }
+
+    // 保護者モード制御
+    function toggleMode() {
+      isParentMode = !isParentMode;
+      const childView = document.getElementById('childView');
+      const parentView = document.getElementById('parentView');
+      const badge = document.getElementById('currentModeBadge');
+      const btnText = document.getElementById('modeBtnText');
+      const icon = document.getElementById('modeIcon');
+      const freeBanner = document.getElementById('freeTimeBanner');
+      const childActions = document.getElementById('childActionGroup');
+
+      if (isParentMode) {
+        childView.classList.add('hidden');
+        parentView.classList.remove('hidden');
+        badge.textContent = "保護者・設定モード";
+        badge.className = "text-xs px-2 py-0.5 rounded-full bg-slate-800 text-white font-bold";
+        btnText.textContent = "子どもモードに戻る";
+        icon.setAttribute('data-lucide', 'arrow-left');
+        freeBanner.classList.add('hidden');
+        childActions.classList.add('hidden');
+        renderParentView();
+      } else {
+        parentView.classList.add('hidden');
+        childView.classList.remove('hidden');
+        badge.textContent = "子どもモード";
+        badge.className = "text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold";
+        btnText.textContent = "保護者・設定モードへ";
+        icon.setAttribute('data-lucide', 'settings');
+        freeBanner.classList.remove('hidden');
+        childActions.classList.remove('hidden');
+        renderTasks();
+        recalculateMetrics();
+      }
+      lucide.createIcons();
+    }
+
+    function renderParentView() {
+      renderMasterPalette();
+      renderParentDayTabs();
+      renderParentDayTasks();
+    }
+
+    function renderMasterPalette() {
+      const container = document.getElementById('masterPaletteContainer');
+      container.innerHTML = '';
+
+      for (const [major, items] of Object.entries(masterData)) {
+        const group = document.createElement('div');
+        group.className = "border border-slate-200 rounded-xl overflow-hidden flex-shrink-0";
+        
+        const header = document.createElement('div');
+        header.className = "bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700 flex items-center justify-between";
+        header.textContent = major;
+        group.appendChild(header);
+
+        const list = document.createElement('div');
+        list.className = "p-2 bg-white flex flex-col gap-1.5";
+
+        items.forEach(item => {
+          const btn = document.createElement('button');
+          const style = getCategoryStyle(item.category);
+          btn.className = `p-2 rounded-lg text-left text-xs font-bold border ${style.border} ${style.bg} hover:brightness-95 flex items-center justify-between transition`;
+          btn.onclick = () => addMasterItemToParentDay(item);
+          btn.innerHTML = `
+            <span class="truncate">${item.name}</span>
+            <span class="text-[10px] px-1.5 py-0.5 bg-white/80 rounded text-slate-600 font-extrabold flex-shrink-0">${item.minutes}分 ＋</span>
+          `;
+          list.appendChild(btn);
+        });
+
+        group.appendChild(list);
+        container.appendChild(group);
+      }
+    }
+
+    function switchParentWeek(w) {
+      parentCurrentWeek = w;
+      document.getElementById('parentWeek1Btn').className = w === 1 ? "px-4 py-1.5 rounded-lg bg-white shadow-sm text-indigo-600 transition" : "px-4 py-1.5 rounded-lg text-slate-600 transition";
+      document.getElementById('parentWeek2Btn').className = w === 2 ? "px-4 py-1.5 rounded-lg bg-white shadow-sm text-indigo-600 transition" : "px-4 py-1.5 rounded-lg text-slate-600 transition";
+      renderParentDayTasks();
+    }
+
+    function renderParentDayTabs() {
+      const container = document.getElementById('parentDayTabs');
+      container.innerHTML = '';
+      DAYS_ORDER.forEach(day => {
+        const isSel = parentCurrentDay === day;
+        const btn = document.createElement('button');
+        btn.className = `py-2.5 transition border-b-2 ${isSel ? 'border-indigo-600 text-indigo-700 bg-white' : 'border-transparent text-slate-500 hover:bg-slate-200/50'}`;
+        btn.textContent = day.replace('曜日', '');
+        btn.onclick = () => {
+          parentCurrentDay = day;
+          document.getElementById('currentParentDayBadge').textContent = day;
+          renderParentDayTabs();
+          renderParentDayTasks();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function renderParentDayTasks() {
+      const container = document.getElementById('parentDayTasksContainer');
+      container.innerHTML = '';
+      if (!twoWeekSchedule[parentCurrentWeek][parentCurrentDay]) {
+        twoWeekSchedule[parentCurrentWeek][parentCurrentDay] = [];
+      }
+
+      const tasks = twoWeekSchedule[parentCurrentWeek][parentCurrentDay];
+      let totalMins = 0;
+
+      if (tasks.length === 0) {
+        container.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-slate-300 py-16">
+            <i data-lucide="calendar-plus" class="w-12 h-12 stroke-1 mb-2"></i>
+            <p class="text-xs font-bold">左の「科目別マスター」から項目を選んで追加してください</p>
+          </div>
+        `;
+        lucide.createIcons();
+        document.getElementById('parentDayTotalMinutes').textContent = "0";
+        return;
+      }
+
+      tasks.forEach((task, index) => {
+        totalMins += task.minutes;
+        const style = getCategoryStyle(task.category);
+        const card = document.createElement('div');
+        card.className = `p-2.5 rounded-xl border flex items-center justify-between flex-shrink-0 ${style.border} ${style.bg}`;
+        card.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-black px-1.5 py-0.5 rounded bg-white/70 text-slate-700 border border-slate-200">${task.majorCategory}</span>
+            <span class="text-xs font-black text-slate-800">${task.name}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1">
+              <button onclick="adjustParentTaskTime(${index}, -5)" class="w-5 h-5 rounded bg-white border border-slate-200 text-slate-600 font-bold text-xs">-</button>
+              <span class="text-xs font-black text-slate-700 w-8 text-center">${task.minutes}m</span>
+              <button onclick="adjustParentTaskTime(${index}, 5)" class="w-5 h-5 rounded bg-white border border-slate-200 text-slate-600 font-bold text-xs">+</button>
+            </div>
+            <button onclick="removeParentTask(${index})" class="p-1 text-slate-400 hover:text-rose-500">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('parentDayTotalMinutes').textContent = totalMins;
+      lucide.createIcons();
+    }
+
+    function addMasterItemToParentDay(item) {
+      if (!twoWeekSchedule[parentCurrentWeek][parentCurrentDay]) {
+        twoWeekSchedule[parentCurrentWeek][parentCurrentDay] = [];
+      }
+      twoWeekSchedule[parentCurrentWeek][parentCurrentDay].push({
+        majorCategory: item.major,
+        name: item.name,
+        minutes: item.minutes,
+        category: item.category
+      });
+      renderParentDayTasks();
+    }
+
+    function adjustParentTaskTime(index, delta) {
+      const tasks = twoWeekSchedule[parentCurrentWeek][parentCurrentDay];
+      if (tasks[index]) {
+        tasks[index].minutes = Math.max(5, tasks[index].minutes + delta);
+        renderParentDayTasks();
+      }
+    }
+
+    function removeParentTask(index) {
+      twoWeekSchedule[parentCurrentWeek][parentCurrentDay].splice(index, 1);
+      renderParentDayTasks();
+    }
+
+    function download2WeekMarkdown() {
+      let md = "";
+      [1, 2].forEach(week => {
+        md += `# ${week}週目\n\n`;
+        DAYS_ORDER.forEach(day => {
+          md += `## ${day}\n`;
+          const tasks = twoWeekSchedule[week][day] || [];
+          tasks.forEach(t => {
+            md += `- ${t.majorCategory}\n  - ${t.name}: ${t.minutes}\n`;
+          });
+          md += `\n`;
+        });
+      });
+
+      const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '2week_standard_schedule.md';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function applyToDefaultAndSave() {
+      localStorage.setItem('study_quest_2week_schedule', JSON.stringify(twoWeekSchedule));
+      alert("現在の2週間スケジュールを標準テンプレートとして保存しました！\n子どもモードの「今日の標準メニュー」に即時反映されます。");
+    }
+
+    function quickLoadTodaySchedule() {
+      const todayIndex = new Date().getDay();
+      const todayName = DAYS_ORDER[todayIndex];
+
+      const tasks = twoWeekSchedule[1][todayName] || [];
+      if (tasks.length === 0) {
+        alert(`${todayName}の標準メニューがまだ設定されていません。\n保護者モードでスケジュールを作成してください。`);
+        return;
+      }
+
+      currentTasks = tasks.map(t => ({
+        id: Date.now() + Math.random(),
+        majorCategory: t.majorCategory,
+        name: t.name,
+        minutes: t.minutes,
+        category: t.category,
+        status: 'pending',
+        startTime: null,
+        finishTime: null
+      }));
+
+      activeTaskIndex = null;
+      renderTasks();
+      resetTimerDisplay();
+      recalculateMetrics();
+      saveState();
+      soundSuccess();
+    }
+
+    function saveState() {
+      localStorage.setItem('study_quest_current_tasks', JSON.stringify(currentTasks));
+      localStorage.setItem('study_quest_dinner_time', document.getElementById('dinnerTimeInput').value);
+      if (studyStartTime) localStorage.setItem('study_quest_start_time', studyStartTime);
+      if (studyFinishTime) localStorage.setItem('study_quest_finish_time', studyFinishTime);
+      if (targetFinishTime) localStorage.setItem('study_quest_target_time', targetFinishTime);
+    }
+
+    function initApp() {
+      document.getElementById('todayReturnTimeText').textContent = getTodayReturnTime();
+
+      const savedMaster = localStorage.getItem('study_quest_master_md') || DEFAULT_MASTER_MD;
+      masterData = parseMasterMarkdown(savedMaster);
+
+      const saved2Week = localStorage.getItem('study_quest_2week_schedule');
+      if (saved2Week) {
+        try { twoWeekSchedule = JSON.parse(saved2Week); } catch(e) {}
+      } else {
+        [1, 2].forEach(w => {
+          twoWeekSchedule[w] = {};
+          DAYS_ORDER.forEach(d => twoWeekSchedule[w][d] = []);
+        });
+      }
+
+      const savedTasks = localStorage.getItem('study_quest_current_tasks');
+      if (savedTasks) {
+        try {
+          currentTasks = JSON.parse(savedTasks);
+          renderTasks();
+        } catch(e) {}
+      }
+
+      const savedDinner = localStorage.getItem('study_quest_dinner_time');
+      if (savedDinner) document.getElementById('dinnerTimeInput').value = savedDinner;
+
+      const savedStart = localStorage.getItem('study_quest_start_time');
+      if (savedStart) {
+        studyStartTime = savedStart;
+        document.getElementById('studyStartedBadge').classList.remove('hidden');
+        document.getElementById('studyStartedText').textContent = `開始: ${savedStart}`;
+      }
+
+      const savedFinish = localStorage.getItem('study_quest_finish_time');
+      if (savedFinish) {
+        studyFinishTime = savedFinish;
+        document.getElementById('studyFinishedBadge').classList.remove('hidden');
+        document.getElementById('studyFinishedText').textContent = `終了: ${savedFinish}`;
+      }
+
+      const savedTarget = localStorage.getItem('study_quest_target_time');
+      if (savedTarget) {
+        targetFinishTime = savedTarget;
+        document.getElementById('targetFinishDisplay').classList.remove('hidden');
+        document.getElementById('targetFinishTimeText').textContent = savedTarget;
+      }
+
+      recalculateMetrics();
+      lucide.createIcons();
+    }
+
+    document.getElementById('dinnerTimeInput').addEventListener('change', () => {
+      recalculateMetrics();
+      saveState();
+    });
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
