@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     body { -webkit-tap-highlight-color: transparent; }
-    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 9999px; }
     .touch-scroll { -webkit-overflow-scrolling: touch; }
   </style>
@@ -17,31 +17,34 @@
 <body class="bg-slate-100 text-slate-800 h-screen flex flex-col font-sans select-none overflow-hidden">
 
   <!-- 1. ヘッダー -->
-  <header class="bg-white border-b border-slate-200 px-6 py-2.5 flex items-center justify-between shadow-sm z-10 flex-shrink-0">
+  <header class="bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between shadow-sm z-10 flex-shrink-0">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md">
-        <i data-lucide="compass" class="w-6 h-6"></i>
+      <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md">
+        <i data-lucide="compass" class="w-5 h-5"></i>
       </div>
       <div>
         <div class="flex items-center gap-2 flex-wrap">
-          <h1 class="text-base font-black text-slate-800 tracking-tight">スタディクエスト</h1>
-          <span id="currentModeBadge" class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">子どもモード</span>
-          <span id="studyStartedBadge" class="hidden text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center gap-1">
+          <h1 class="text-sm font-black text-slate-800 tracking-tight">スタディクエスト</h1>
+          <span id="currentModeBadge" class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">子どもモード</span>
+          <span id="studyStartedBadge" class="hidden text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center gap-1">
             <i data-lucide="clock" class="w-3 h-3"></i><span id="studyStartedText">開始: --:--</span>
           </span>
-          <span id="studyFinishedBadge" class="hidden text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center gap-1">
+          <span id="studyFinishedBadge" class="hidden text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center gap-1">
             <i data-lucide="award" class="w-3 h-3"></i><span id="studyFinishedText">終了: --:--</span>
           </span>
+          <span id="wakeLockBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold flex items-center gap-1">
+            <i data-lucide="sun" class="w-3 h-3 text-amber-600"></i>常時点灯
+          </span>
         </div>
-        <div id="headerDinnerRow" class="flex items-center gap-4 text-xs font-semibold text-slate-500 mt-0.5 flex-wrap">
+        <div id="headerDinnerRow" class="flex items-center gap-3 text-xs font-semibold text-slate-500 mt-0.5 flex-wrap">
           <span id="todayReturnDisplay" class="flex items-center gap-1 text-slate-600 font-bold">
             <i data-lucide="home" class="w-3.5 h-3.5 text-blue-500"></i>
             帰宅: <span id="todayReturnTimeText">--:--</span>
           </span>
-          <label class="flex items-center gap-1.5 cursor-pointer">
+          <label class="flex items-center gap-1 cursor-pointer">
             <i data-lucide="utensils" class="w-3.5 h-3.5 text-amber-500"></i>
             夕食:
-            <input type="time" id="dinnerTimeInput" value="19:00" class="border border-slate-200 rounded px-1.5 py-0.5 bg-slate-50 font-bold text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            <input type="time" id="dinnerTimeInput" value="18:00" class="border border-slate-200 rounded px-1 py-0.2 bg-slate-50 font-bold text-slate-700 focus:outline-none">
           </label>
           <span class="flex items-center gap-1">
             <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-500"></i>
@@ -55,114 +58,134 @@
     </div>
 
     <!-- 自由時間バナー -->
-    <div id="freeTimeBanner" class="flex items-center gap-3 bg-emerald-50 border border-emerald-300 px-5 py-1.5 rounded-2xl shadow-sm transition-all duration-300">
-      <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-sm animate-pulse">★</div>
+    <div id="freeTimeBanner" class="flex items-center gap-2.5 bg-emerald-50 border border-emerald-300 px-3.5 py-1 rounded-xl shadow-xs transition">
+      <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-xs animate-pulse">★</div>
       <div>
-        <div class="text-[9px] font-bold uppercase tracking-wider text-emerald-700">夕食までの自由時間</div>
-        <div class="text-lg font-black text-emerald-800 leading-tight">
-          <span id="freeTimeMinutes">0</span> <span class="text-xs font-bold">分ゲット！</span>
+        <div class="text-[8px] font-bold uppercase tracking-wider text-emerald-700">夕食までの自由時間</div>
+        <div class="text-base font-black text-emerald-800 leading-tight">
+          <span id="freeTimeMinutes">0</span> <span class="text-[10px] font-bold">分ゲット！</span>
         </div>
       </div>
     </div>
 
-    <!-- （２）右側アクションボタン群：開始・終了ボタンを独立配置 -->
-    <div class="flex items-center gap-2">
-      <div id="childActionGroup" class="flex items-center gap-1.5 flex-wrap">
-        <!-- 開始ボタングループ -->
-        <button id="startMorningBtn" onclick="startMorningStudy()" class="flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 text-amber-800 hover:bg-amber-100 rounded-xl font-bold text-xs border border-amber-200 transition">
-          <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i>
-          <span>朝勉スタート</span>
+    <!-- ヘッダー右側ボタン群 -->
+    <div class="flex items-center gap-1.5">
+      <div id="childActionGroup" class="flex items-center gap-1">
+        <button onclick="openWeeklyModal()" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg font-bold text-xs border border-indigo-200 transition flex items-center gap-1">
+          <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>
+          <span>2週間予定</span>
         </button>
-        <button id="startTodayBtn" onclick="openStartStudyModal()" class="flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl font-bold text-xs border border-blue-200 transition">
-          <i data-lucide="play-circle" class="w-3.5 h-3.5 text-blue-600"></i>
-          <span>今日勉スタート</span>
-        </button>
-
-        <!-- （２）終了ボタングループ（メイン画面に追加） -->
-        <button onclick="finishStudySessionManual('朝勉')" class="flex items-center gap-1 px-2.5 py-1.5 bg-orange-50 text-orange-800 hover:bg-orange-100 rounded-xl font-bold text-xs border border-orange-300 transition">
-          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-orange-600"></i>
-          <span>朝勉を終える</span>
-        </button>
-        <button onclick="finishStudySessionManual('今日の勉強')" class="flex items-center gap-1 px-2.5 py-1.5 bg-rose-50 text-rose-800 hover:bg-rose-100 rounded-xl font-bold text-xs border border-rose-300 transition">
-          <i data-lucide="stop-circle" class="w-3.5 h-3.5 text-rose-600"></i>
-          <span>今日の勉強を終える</span>
-        </button>
-
-        <button id="quickLoadTodayBtn" onclick="quickLoadTodaySchedule()" class="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-bold text-xs border border-indigo-200 transition">
-          <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
-          <span>標準メニュー呼出</span>
-        </button>
+        <button id="startMorningBtn" onclick="startMorningStudy()" class="px-2 py-1 bg-amber-50 text-amber-800 hover:bg-amber-100 rounded-lg font-bold text-xs border border-amber-200 transition">🌅 朝勉</button>
+        <button id="startTodayBtn" onclick="openStartStudyModal()" class="px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-bold text-xs border border-blue-200 transition">🚀 今日の勉強</button>
+        <button onclick="finishStudySessionManual('今日の勉強')" class="px-2 py-1 bg-rose-50 text-rose-800 hover:bg-rose-100 rounded-lg font-bold text-xs border border-rose-300 transition">🛑 勉強終了</button>
       </div>
-      <button id="toggleModeBtn" onclick="toggleMode()" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-white hover:bg-slate-700 rounded-xl font-bold text-xs transition shadow-sm">
-        <i data-lucide="settings" id="modeIcon" class="w-4 h-4"></i>
-        <span id="modeBtnText">保護者・設定</span>
+      <button id="toggleModeBtn" onclick="toggleMode()" class="px-2.5 py-1 bg-slate-800 text-white hover:bg-slate-700 rounded-lg font-bold text-xs transition shadow-xs flex items-center gap-1">
+        <i data-lucide="settings" id="modeIcon" class="w-3.5 h-3.5"></i>
+        <span id="modeBtnText">保護者</span>
       </button>
     </div>
   </header>
 
-  <!-- ======================================================== -->
-  <!-- 2. 子どもモード（通常画面） -->
-  <!-- ======================================================== -->
-  <main id="childView" class="flex-1 min-h-0 flex overflow-hidden p-4 gap-4">
-    <!-- 左カラム：上下2段構成 -->
-    <section class="w-5/12 min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <!-- 上段：今日のやることリスト -->
+  <!-- 2. 子どもモード -->
+  <main id="childView" class="flex-1 min-h-0 flex overflow-hidden p-2.5 gap-2.5">
+    
+    <!-- 1カラム目：今日のやることリスト ＋ 習いごと (32%) -->
+    <section class="w-[32%] min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0">
       <div class="flex-1 min-h-0 flex flex-col border-b border-slate-200">
-        <div class="p-3 bg-slate-50 border-b border-slate-200 flex-shrink-0 flex items-center justify-between">
+        <div class="p-2.5 bg-slate-50 border-b border-slate-200 flex-shrink-0 flex items-center justify-between">
           <div class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
             <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
             <span>今日のやることリスト</span>
           </div>
-          <button onclick="openAddTaskModal()" class="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow-sm hover:bg-indigo-700 transition">
+          <button onclick="openAddTaskModal()" class="text-xs bg-indigo-600 text-white px-2 py-0.5 rounded-lg font-bold flex items-center gap-0.5 shadow-xs hover:bg-indigo-700 transition">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i> 追加
           </button>
         </div>
-        <div class="flex-1 min-h-0 overflow-y-auto p-3 custom-scroll touch-scroll flex flex-col gap-2" id="taskListContainer"></div>
+        <div class="flex-1 min-h-0 overflow-y-auto p-2 custom-scroll touch-scroll flex flex-col gap-1.5" id="taskListContainer"></div>
       </div>
 
-      <!-- 下段：今日の習いごと・日能研エリア -->
-      <div class="h-44 min-h-[140px] flex flex-col bg-slate-50/50 flex-shrink-0">
-        <div class="px-3 py-2 bg-sky-50/80 border-b border-sky-100 flex items-center justify-between flex-shrink-0">
+      <div class="h-40 min-h-[130px] flex flex-col bg-slate-50/50 flex-shrink-0">
+        <div class="px-2.5 py-1.5 bg-sky-50/80 border-b border-sky-100 flex items-center justify-between flex-shrink-0">
           <div class="text-xs font-black text-sky-800 flex items-center gap-1.5">
             <i data-lucide="backpack" class="w-3.5 h-3.5 text-sky-600"></i>
             <span>今日の習いごと・通塾</span>
           </div>
-          <span class="text-[10px] font-bold text-sky-600 bg-white px-2 py-0.5 rounded border border-sky-200">
-            勉強完了後に出発！
-          </span>
+          <span class="text-[9px] font-bold text-sky-600 bg-white px-1.5 py-0.5 rounded border border-sky-200">勉強後に出発！</span>
         </div>
-        <div class="flex-1 min-h-0 overflow-y-auto p-2.5 custom-scroll touch-scroll flex flex-col gap-2 bg-white/60" id="lessonListContainer"></div>
+        <div class="flex-1 min-h-0 overflow-y-auto p-2 custom-scroll touch-scroll flex flex-col gap-1.5 bg-white/60" id="lessonListContainer"></div>
       </div>
 
-      <!-- フッター -->
-      <div class="p-2.5 bg-slate-50 border-t border-slate-200 flex-shrink-0 flex items-center justify-between text-xs font-bold text-slate-600">
-        <div>勉強合計: <span id="totalStudyMinutes" class="text-sm font-black text-indigo-600">0</span> 分</div>
-        <button onclick="clearAllTasks()" class="text-rose-500 hover:text-rose-700 flex items-center gap-1">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 全消去
+      <div class="p-2 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs font-bold text-slate-600 flex-shrink-0">
+        <div>勉強合計: <span id="totalStudyMinutes" class="font-black text-indigo-600">0</span> 分</div>
+        <button onclick="clearAllTasks()" class="text-rose-500 hover:text-rose-700 flex items-center gap-0.5 text-[11px]">
+          <i data-lucide="trash-2" class="w-3 h-3"></i> 全消去
         </button>
       </div>
     </section>
 
-    <!-- 右カラム：タイマーパネル -->
-    <section id="timerPanel" class="w-7/12 min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative overflow-hidden transition-colors duration-500 justify-between items-center text-center">
-      <div class="w-full flex items-center justify-between flex-shrink-0">
-        <span id="timerCategoryBadge" class="px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-slate-100 text-slate-600">準備中</span>
+    <!-- 2カラム目：縦型タイムラインバー (16%) -->
+    <section class="w-[16%] min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 p-2">
+      <div class="text-[10px] font-black text-slate-500 border-b border-slate-100 pb-1 flex items-center justify-between flex-shrink-0">
+        <span class="flex items-center gap-1">
+          <i data-lucide="clock" class="w-3 h-3 text-indigo-600"></i>
+          <span>進行バー</span>
+        </span>
+        <span id="timelineSpanBadge" class="text-[8px] font-bold px-1 rounded bg-slate-100 text-slate-600">--〜--</span>
+      </div>
+
+      <div class="flex-1 min-h-0 relative my-1.5 overflow-hidden flex" id="timelineBarContainer">
+        <div id="timelineHourLabels" class="w-8 h-full relative border-r border-slate-200/80 font-mono text-[9px] font-black text-rose-500 select-none pr-1"></div>
+        <div id="timelineBlocksTrack" class="flex-1 h-full relative bg-slate-50/70 overflow-hidden"></div>
+      </div>
+
+      <div class="text-[8px] font-bold text-slate-400 text-center flex-shrink-0 pt-0.5 border-t border-slate-100">
+        🔴現在 ｜ 実績・直しを反映
+      </div>
+    </section>
+
+    <!-- 3カラム目：タイマーパネル (52%) -->
+    <section id="timerPanel" class="flex-1 min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm p-4 relative overflow-hidden transition-colors duration-500 justify-between items-center text-center">
+      
+      <div class="w-full flex items-center justify-between border-b border-slate-100 pb-2 flex-shrink-0">
+        <div id="todayDateArea" class="flex items-center gap-2 font-black text-2xl tracking-tight">
+          <i data-lucide="calendar" class="w-6 h-6 stroke-[2.5]"></i>
+          <span id="todayDateText">--月--日 (--)</span>
+        </div>
+        <div class="flex items-center gap-2 text-slate-800 font-mono font-black text-3xl tracking-tight">
+          <i data-lucide="clock" class="w-6 h-6 text-indigo-600"></i>
+          <span id="realtimeClockText">--:--</span>
+        </div>
+      </div>
+
+      <div id="centerScheduleSummary" class="w-full flex items-center justify-center gap-2.5 py-1 px-3 bg-slate-50 rounded-xl border border-slate-100 flex-shrink-0 text-xs font-bold text-slate-600 flex-wrap">
+        <div class="flex items-center gap-1.5 text-indigo-700">
+          <i data-lucide="flag" class="w-3.5 h-3.5"></i>
+          <span>終了予定: <strong id="centerFinishTimeText" class="font-black">--:--</strong></span>
+        </div>
+        <span class="text-slate-300">|</span>
+        <div id="centerLessonInfoContainer" class="flex items-center gap-2 flex-wrap">
+          <span class="text-slate-400">習い事なし</span>
+        </div>
+      </div>
+
+      <div class="w-full flex items-center justify-between mt-1 flex-shrink-0">
+        <span id="timerCategoryBadge" class="px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-slate-100 text-slate-600">準備中</span>
         <span id="currentTaskIndexText" class="text-xs font-bold text-slate-400">タスク未選択</span>
       </div>
 
       <div class="my-auto w-full">
-        <div id="currentMajorCategory" class="text-xs font-bold text-slate-400 mb-1 tracking-wider uppercase"></div>
-        <h2 id="currentTaskTitle" class="text-3xl font-black text-slate-800 mb-2 truncate">左のリストからタスクを選択</h2>
+        <div id="currentMajorCategory" class="text-xs font-bold text-slate-400 mb-0.5 tracking-wider uppercase"></div>
+        <h2 id="currentTaskTitle" class="text-3xl font-black text-slate-800 mb-1.5 truncate">左のリストからタスクを選択</h2>
 
-        <div id="nextStepBanner" class="hidden my-3 p-3 bg-amber-50 border border-amber-300 rounded-xl max-w-md mx-auto text-amber-900 font-bold text-sm shadow-sm flex items-center justify-center gap-2">
-          <i data-lucide="arrow-right-circle" class="w-5 h-5 text-amber-600 flex-shrink-0"></i>
-          <span>次は「<span id="nextTaskName" class="underline decoration-2">理科</span>」！テキストを開いておこう</span>
+        <div id="nextStepBanner" class="hidden my-2 p-2 bg-amber-50 border border-amber-300 rounded-xl max-w-sm mx-auto text-amber-900 font-bold text-xs shadow-xs flex items-center justify-center gap-1.5">
+          <i data-lucide="arrow-right-circle" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
+          <span>次は「<span id="nextTaskName" class="underline decoration-2">理科</span>」！テキストを開こう</span>
         </div>
 
-        <div class="relative w-56 h-56 mx-auto my-4 flex items-center justify-center">
+        <div class="relative w-48 h-48 mx-auto my-2 flex items-center justify-center">
           <svg class="w-full h-full transform -rotate-90">
-            <circle cx="112" cy="112" r="98" stroke="currentColor" stroke-width="14" class="text-slate-100" fill="transparent" />
-            <circle id="timerRing" cx="112" cy="112" r="98" stroke="currentColor" stroke-width="14" class="text-indigo-600 transition-all duration-1000" fill="transparent" stroke-dasharray="615.75" stroke-dashoffset="0" stroke-linecap="round" />
+            <circle cx="96" cy="96" r="82" stroke="currentColor" stroke-width="12" class="text-slate-100" fill="transparent" />
+            <circle id="timerRing" cx="96" cy="96" r="82" stroke="currentColor" stroke-width="12" class="text-indigo-600 transition-all duration-1000" fill="transparent" stroke-dasharray="515.22" stroke-dashoffset="0" stroke-linecap="round" />
           </svg>
           <div class="absolute inset-0 flex flex-col items-center justify-center">
             <div id="timeRemainingDisplay" class="text-5xl font-black text-slate-800 tracking-tight font-mono">00:00</div>
@@ -171,23 +194,22 @@
         </div>
 
         <div class="flex items-center justify-center gap-3">
-          <button id="timerToggleBtn" onclick="handleTimerToggleClick()" class="px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base shadow-lg shadow-indigo-200 transition active:scale-95 flex items-center gap-2">
+          <button id="timerToggleBtn" onclick="handleTimerToggleClick()" class="px-8 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base shadow-md transition active:scale-95 flex items-center gap-2">
             <i data-lucide="play" id="timerToggleIcon" class="w-5 h-5"></i>
             <span id="timerToggleText">スタート</span>
           </button>
-          <button onclick="resetCurrentTimer()" class="p-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold transition">
+          <button id="timerResetBtn" onclick="resetCurrentTimer()" class="p-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold transition">
             <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
           </button>
         </div>
       </div>
 
-      <!-- 下部アクションボタン -->
-      <div class="w-full grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 flex-shrink-0" id="bottomActionRow">
-        <button id="giveUpBtn" onclick="finishTask(true)" class="py-3 px-4 rounded-xl border-2 border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5">
-          <i data-lucide="help-circle" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
-          <span>わからない (後でやる・質問)</span>
+      <div class="w-full grid grid-cols-2 gap-3 pt-2.5 border-t border-slate-100 flex-shrink-0" id="bottomActionRow">
+        <button id="giveUpBtn" onclick="finishTask(true)" class="py-3 px-4 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5">
+          <i data-lucide="help-circle" class="w-4 h-4 text-amber-600"></i>
+          <span>わからない (後でやる)</span>
         </button>
-        <button id="completeBtn" onclick="handleCompleteBtnClick()" class="py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2">
+        <button id="completeBtn" onclick="handleCompleteBtnClick()" class="py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-xs transition flex items-center justify-center gap-2">
           <i data-lucide="check" id="completeBtnIcon" class="w-4 h-4"></i>
           <span id="completeBtnText">できた！とけた！</span>
         </button>
@@ -195,323 +217,475 @@
     </section>
   </main>
 
-  <!-- ======================================================== -->
-  <!-- 3. 保護者・設定モード画面 -->
-  <!-- ======================================================== -->
-  <main id="parentView" class="hidden flex-1 min-h-0 flex overflow-hidden p-4 gap-4">
+  <!-- 2週間スケジュール画面（モーダル） -->
+  <div id="weeklyModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-5xl h-[88vh] shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150" onclick="event.stopPropagation()">
+      <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 text-slate-800 font-black text-base">
+            <i data-lucide="calendar-range" class="w-5 h-5 text-indigo-600"></i>
+            <span>2週間スケジュール確認</span>
+          </div>
+          <div class="flex p-0.5 bg-slate-200 rounded-xl font-bold text-xs">
+            <button id="modalWeek1Btn" onclick="switchModalWeek(1)" class="px-4 py-1.5 rounded-lg bg-white shadow-xs text-indigo-600 font-black transition">第1週（通常）</button>
+            <button id="modalWeek2Btn" onclick="switchModalWeek(2)" class="px-4 py-1.5 rounded-lg text-slate-600 transition">第2週（テスト週）</button>
+          </div>
+        </div>
+        <button onclick="closeWeeklyModal()" class="flex items-center gap-1 px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-xs transition">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span>元の画面に戻る</span>
+        </button>
+      </div>
+
+      <div class="flex-1 min-h-0 grid grid-cols-7 divide-x divide-slate-200 overflow-hidden bg-slate-50/40" id="weeklyModalColumns"></div>
+
+      <div class="px-5 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs font-bold text-slate-500 flex-shrink-0">
+        <span>※開始日（第1週日曜日）に基づいて実際の日付を自動計算して表示しています</span>
+        <button onclick="closeWeeklyModal()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs transition shadow-xs">
+          閉じて勉強画面へ戻る
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 保護者・設定モード（開始日入力欄を追加） -->
+  <main id="parentView" class="hidden flex-1 min-h-0 flex overflow-hidden p-3 gap-3">
     <section class="w-4/12 min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+      <div class="p-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 class="text-xs font-black text-slate-700 flex items-center gap-1.5">
-            <i data-lucide="database" class="w-4 h-4 text-indigo-600"></i>
-            科目別マスター設定
+          <h2 class="text-xs font-black text-slate-700 flex items-center gap-1">
+            <i data-lucide="database" class="w-3.5 h-3.5 text-indigo-600"></i> 科目別マスター設定
           </h2>
-          <p class="text-[10px] text-slate-400">クリックで右側の選択中曜日に配置</p>
+          <p class="text-[9px] text-slate-400">クリックで右側の曜日に配置</p>
         </div>
         <div>
           <input type="file" id="masterFileInput" accept=".md,.txt" class="hidden" onchange="handleMasterFileUpload(event)">
-          <button onclick="triggerMasterFileLoad()" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold flex items-center gap-1 transition">
-            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-            master_subject.md 読込
+          <button onclick="triggerMasterFileLoad()" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold flex items-center gap-1 transition">
+            <i data-lucide="upload" class="w-3 h-3"></i> master.md 読込
           </button>
         </div>
       </div>
-      <div class="flex-1 min-h-0 overflow-y-auto p-3 custom-scroll touch-scroll flex flex-col gap-3" id="masterPaletteContainer"></div>
+      <div class="flex-1 min-h-0 overflow-y-auto p-2.5 custom-scroll touch-scroll flex flex-col gap-2.5" id="masterPaletteContainer"></div>
     </section>
 
     <section class="w-8/12 min-h-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
-        <div class="flex items-center gap-3">
-          <div class="flex p-1 bg-slate-200 rounded-xl font-bold text-xs">
-            <button id="parentWeek1Btn" onclick="switchParentWeek(1)" class="px-4 py-1.5 rounded-lg bg-white shadow-sm text-indigo-600 transition">第1週</button>
-            <button id="parentWeek2Btn" onclick="switchParentWeek(2)" class="px-4 py-1.5 rounded-lg text-slate-600 transition">第2週（テスト週）</button>
+      <div class="p-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-shrink-0 flex-wrap gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- ★ 2週間の開始日設定フィールド -->
+          <label class="flex items-center gap-1 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2 py-1 rounded-lg shadow-2xs">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-600"></i>
+            <span>第1週 開始日:</span>
+            <input type="date" id="parentCycleStartDateInput" onchange="onCycleStartDateChanged()" class="border-0 bg-transparent font-black text-indigo-700 focus:outline-none cursor-pointer text-xs">
+          </label>
+
+          <div class="flex p-0.5 bg-slate-200 rounded-lg font-bold text-xs">
+            <button id="parentWeek1Btn" onclick="switchParentWeek(1)" class="px-3 py-1 rounded-md bg-white shadow-xs text-indigo-600 transition">第1週</button>
+            <button id="parentWeek2Btn" onclick="switchParentWeek(2)" class="px-3 py-1 rounded-md text-slate-600 transition">第2週（テスト週）</button>
           </div>
           <span class="text-xs font-bold text-slate-500">
-            編集中の曜日: <span id="currentParentDayBadge" class="text-indigo-600 font-black">日曜日</span>
+            編集中: <span id="currentParentDayBadge" class="text-indigo-600 font-black">日曜日</span>
           </span>
         </div>
-        <div class="flex items-center gap-2">
-          <button onclick="download2WeekMarkdown()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1 transition">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            2week.md 出力
+        <div class="flex items-center gap-1.5">
+          <button onclick="download2WeekMarkdown()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1 transition">
+            <i data-lucide="download" class="w-3 h-3"></i> 2week.md 出力
           </button>
-          <button onclick="applyToDefaultAndSave()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black shadow-sm flex items-center gap-1 transition">
-            <i data-lucide="check" class="w-3.5 h-3.5"></i>
-            デフォルトとして保存・適用
+          <button onclick="applyToDefaultAndSave()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black shadow-xs flex items-center gap-1 transition">
+            <i data-lucide="check" class="w-3 h-3"></i> 保存・即時反映
           </button>
         </div>
       </div>
 
       <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-100/70 text-center text-xs font-bold flex-shrink-0" id="parentDayTabs"></div>
-      <div class="flex-1 min-h-0 overflow-y-auto p-4 custom-scroll touch-scroll flex flex-col gap-2" id="parentDayTasksContainer"></div>
+      <div class="flex-1 min-h-0 overflow-y-auto p-3 custom-scroll touch-scroll flex flex-col gap-1.5" id="parentDayTasksContainer"></div>
 
-      <div class="p-3 bg-slate-50 border-t border-slate-200 flex-shrink-0 flex items-center justify-between text-xs font-bold text-slate-500">
-        <span>この日の標準合計: <span id="parentDayTotalMinutes" class="text-slate-800 font-black text-sm">0</span> 分</span>
-        <span class="text-[11px] text-slate-400">※左のマスターをクリックするとここに追加されます</span>
+      <div class="p-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs font-bold text-slate-500">
+        <span>この日の合計: <span id="parentDayTotalMinutes" class="text-slate-800 font-black">0</span> 分</span>
+        <span class="text-[10px] text-slate-400">※左のマスターをクリックして追加</span>
       </div>
     </section>
   </main>
 
-  <!-- ======================================================== -->
   <!-- 4. モーダル群 -->
-  <!-- ======================================================== -->
-
-  <!-- 子ども用：タスク追加モーダル -->
   <div id="addTaskModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150" onclick="event.stopPropagation()">
-      <h3 class="text-sm font-black text-slate-800 mb-3 flex items-center gap-1.5">
-        <i data-lucide="plus-circle" class="w-4 h-4 text-indigo-600"></i>
-        今日の予定にタスクを追加
+    <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-2xl border border-slate-200" onclick="event.stopPropagation()">
+      <h3 class="text-sm font-black text-slate-800 mb-2.5 flex items-center gap-1">
+        <i data-lucide="plus-circle" class="w-4 h-4 text-indigo-600"></i> 今日の予定にタスクを追加
       </h3>
-      <div class="space-y-3 text-xs font-bold">
+      <div class="space-y-2.5 text-xs font-bold">
         <div>
-          <label class="block text-slate-500 mb-1">科目（大項目）</label>
-          <select id="modalMajorInput" onchange="onModalMajorChanged()" class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 font-bold"></select>
+          <label class="block text-slate-500 mb-0.5">科目（大項目）</label>
+          <select id="modalMajorInput" onchange="onModalMajorChanged()" class="w-full p-1.5 border border-slate-200 rounded-lg bg-slate-50"></select>
         </div>
         <div>
-          <label class="block text-slate-500 mb-1">小項目（マスターから選択、または直接入力）</label>
-          <select id="modalPresetSubSelect" onchange="onModalPresetSubChanged()" class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 font-bold mb-1.5"></select>
-          <input type="text" id="modalSubNameInput" placeholder="直接項目名を入力することもできます" class="w-full p-2 border border-slate-200 rounded-lg">
+          <label class="block text-slate-500 mb-0.5">小項目</label>
+          <select id="modalPresetSubSelect" onchange="onModalPresetSubChanged()" class="w-full p-1.5 border border-slate-200 rounded-lg bg-slate-50 mb-1"></select>
+          <input type="text" id="modalSubNameInput" placeholder="直接項目名を入力" class="w-full p-1.5 border border-slate-200 rounded-lg">
+        </div>
+        <div id="modalStartTimeContainer" class="hidden">
+          <label class="block text-slate-500 mb-0.5">開始時刻（習い事）</label>
+          <input type="time" id="modalStartTimeInput" class="w-full p-1.5 border border-slate-200 rounded-lg font-bold">
         </div>
         <div>
-          <label class="block text-slate-500 mb-1">時間 (分)</label>
-          <input type="number" id="modalMinutesInput" value="20" min="5" step="5" class="w-full p-2 border border-slate-200 rounded-lg font-bold">
+          <label class="block text-slate-500 mb-0.5">時間 (分)</label>
+          <input type="number" id="modalMinutesInput" value="20" min="5" step="5" class="w-full p-1.5 border border-slate-200 rounded-lg font-bold">
         </div>
       </div>
-      <div class="flex gap-2 mt-4">
-        <button onclick="closeAddTaskModal()" class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs">キャンセル</button>
-        <button onclick="confirmAddTaskModal()" class="flex-1 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs shadow-md">追加する</button>
+      <div class="flex gap-2 mt-3.5">
+        <button onclick="closeAddTaskModal()" class="flex-1 py-1.5 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs">キャンセル</button>
+        <button onclick="confirmAddTaskModal()" class="flex-1 py-1.5 bg-indigo-600 text-white rounded-xl font-bold text-xs shadow-xs">追加</button>
       </div>
     </div>
   </div>
 
-  <!-- 今日の勉強スタートモーダル -->
   <div id="startStudyModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative" onclick="event.stopPropagation()">
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
-            <i data-lucide="rocket" class="w-5 h-5"></i>
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between mb-2.5">
+        <div class="flex items-center gap-1.5">
+          <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+            <i data-lucide="rocket" class="w-4 h-4"></i>
           </div>
-          <h3 class="text-base font-black text-slate-800">今日の勉強をスタート！</h3>
+          <h3 class="text-sm font-black text-slate-800">今日の勉強をスタート！</h3>
         </div>
         <button onclick="closeStartStudyModal()" class="text-slate-400 hover:text-slate-600 p-1">
-          <i data-lucide="x" class="w-5 h-5"></i>
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
       
-      <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+      <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-2.5 bg-slate-50 p-2 rounded-xl">
         <span>学校帰宅: <strong id="modalReturnTimeText" class="text-blue-600">--:--</strong></span>
         <span>今日の勉強量: <strong id="modalTotalStudyMins" class="text-indigo-600">0</strong>分</span>
       </div>
 
-      <div class="space-y-3 text-xs font-bold mb-4">
+      <div class="space-y-2.5 text-xs font-bold mb-3.5">
         <div>
-          <label class="block text-slate-600 mb-1">何時までに終わらせたい？（目標終了時刻）</label>
-          <input type="time" id="targetEndTimeInput" step="300" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-base font-black text-slate-800 focus:ring-2 focus:ring-blue-500">
+          <label class="block text-slate-600 mb-0.5">目標終了時刻</label>
+          <input type="time" id="targetEndTimeInput" step="300" class="w-full p-2 border border-slate-200 rounded-xl bg-slate-50 text-sm font-black text-slate-800">
         </div>
         <div>
-          <label class="block text-slate-600 mb-1">今日の習い事・予定（あればメモ）</label>
-          <input type="text" id="targetLessonInput" placeholder="例: 日能研 17:00〜、NITTAI、ピアノ、なし" class="w-full p-2.5 border border-slate-200 rounded-xl">
+          <label class="block text-slate-600 mb-0.5">今日の習い事・予定メモ</label>
+          <input type="text" id="targetLessonInput" placeholder="例: 日能研 17:00〜、NITTAI、ピアノ" class="w-full p-2 border border-slate-200 rounded-xl">
         </div>
       </div>
 
-      <div id="studyStartCommentBox" class="p-3.5 rounded-xl border bg-slate-50 text-slate-700 text-xs font-bold leading-relaxed mb-5 hidden"></div>
+      <div id="studyStartCommentBox" class="p-2.5 rounded-xl border bg-slate-50 text-slate-700 text-xs font-bold leading-relaxed mb-4 hidden"></div>
 
       <div class="flex gap-2">
-        <button onclick="closeStartStudyModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs transition">戻る</button>
-        <button id="confirmStudyStartBtn" onclick="confirmStartStudy()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs shadow-md transition">
-          気合いを入れて開始！
-        </button>
+        <button onclick="closeStartStudyModal()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs">戻る</button>
+        <button onclick="confirmStartStudy()" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs shadow-xs">気合いを入れて開始！</button>
       </div>
     </div>
   </div>
 
-  <!-- （１）終わった後のダイアログ（特大ボタン・指定文言） -->
   <div id="completeCheckModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 text-center" onclick="event.stopPropagation()">
-      <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
-        <i data-lucide="check-check" class="w-8 h-8"></i>
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 text-center" onclick="event.stopPropagation()">
+      <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2">
+        <i data-lucide="check-check" class="w-6 h-6"></i>
       </div>
-      <h3 class="text-xl font-black text-slate-800 mb-1">お疲れさま！よく解いたね！</h3>
-      <p class="text-sm font-bold text-slate-500 mb-6">丸つけの状態はどうなってる？</p>
+      <h3 class="text-lg font-black text-slate-800 mb-0.5">お疲れさま！よく解いたね！</h3>
+      <p class="text-xs font-bold text-slate-500 mb-4">丸つけの状態はどうなってる？</p>
 
-      <div class="space-y-3.5">
-        <!-- 選択肢1：丸つけも直しもおわり！ (特大・緑) -->
-        <button onclick="chooseCompleteAction('done')" class="w-full py-4 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg rounded-2xl shadow-lg shadow-emerald-200 transition flex items-center justify-center gap-2 active:scale-98">
-          <i data-lucide="sparkles" class="w-6 h-6"></i>
-          <span>丸つけも直しもおわり！</span>
+      <div class="space-y-2.5">
+        <button onclick="chooseCompleteAction('done')" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-xl shadow-xs transition flex items-center justify-center gap-1.5">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> 丸つけも直しもおわり！
         </button>
-
-        <!-- 選択肢2：丸つけしてもらう！ (特大・オレンジ) -->
-        <button onclick="chooseCompleteAction('ask')" class="w-full py-4 px-5 bg-amber-500 hover:bg-amber-600 text-white font-black text-lg rounded-2xl shadow-lg shadow-amber-200 transition flex items-center justify-center gap-2 active:scale-98">
-          <i data-lucide="send" class="w-6 h-6"></i>
-          <span>丸つけしてもらう！</span>
+        <button onclick="chooseCompleteAction('ask')" class="w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white font-black text-sm rounded-xl shadow-xs transition flex items-center justify-center gap-1.5">
+          <i data-lucide="send" class="w-4 h-4"></i> 丸つけしてもらう！
         </button>
-
-        <button onclick="closeCompleteCheckModal()" class="w-full py-2.5 text-slate-400 hover:text-slate-600 font-bold text-xs mt-2">
-          キャンセル
-        </button>
+        <button onclick="closeCompleteCheckModal()" class="w-full py-1.5 text-slate-400 hover:text-slate-600 font-bold text-xs">キャンセル</button>
       </div>
     </div>
   </div>
 
-  <!-- （１）休憩時間選択モーダル（丸つけも直しもおわり！完了ボタンを新設） -->
   <div id="breakSelectModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center" onclick="event.stopPropagation()">
-      <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
-        <i data-lucide="coffee" class="w-7 h-7"></i>
+    <div class="bg-white rounded-3xl max-w-xs w-full p-5 shadow-2xl border border-slate-200 text-center" onclick="event.stopPropagation()">
+      <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-2">
+        <i data-lucide="coffee" class="w-5 h-5"></i>
       </div>
-      <h3 id="breakModalTitle" class="text-base font-black text-slate-800 mb-1">丸つけをお願いしてきたよ！</h3>
-      <p id="breakModalSubtitle" class="text-xs font-bold text-slate-500 mb-4">どれくらい休憩する？</p>
+      <h3 id="breakModalTitle" class="text-sm font-black text-slate-800 mb-0.5">丸つけをお願いしてきたよ！</h3>
+      <p id="breakModalSubtitle" class="text-[11px] font-bold text-slate-500 mb-3">どれくらい休憩する？</p>
 
-      <div class="grid grid-cols-3 gap-2 mb-3">
-        <button onclick="applySelectedBreak(5)" class="py-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 rounded-xl font-black text-sm transition">
-          5分
-        </button>
-        <button onclick="applySelectedBreak(10)" class="py-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 rounded-xl font-black text-sm transition">
-          10分
-        </button>
-        <button onclick="applySelectedBreak(25)" class="py-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 rounded-xl font-black text-sm transition">
-          25分
-        </button>
+      <div class="grid grid-cols-2 gap-1.5 mb-2.5">
+        <button onclick="applySelectedBreak(5, 'リフレッシュ休憩')" class="py-2.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 rounded-xl font-black text-xs">5分</button>
+        <button onclick="applySelectedBreak(10, 'リフレッシュ休憩')" class="py-2.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 rounded-xl font-black text-xs">10分</button>
+        <button onclick="applySelectedBreak(25, 'ゆっくり休憩')" class="py-2.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 rounded-xl font-black text-xs">25分</button>
+        <button onclick="applySelectedBreak(10, '🤺フェンシング休憩')" class="py-2.5 bg-sky-50 hover:bg-sky-100 border border-sky-300 text-sky-900 rounded-xl font-black text-xs">🤺 10分</button>
       </div>
 
-      <!-- （１）丸つけ・直し完了ボタン（ここからタスクを即時完了できる） -->
-      <button id="directCompleteFromBreakBtn" onclick="completeCurrentTaskDirectlyFromBreak()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-xs shadow-md transition mb-2 flex items-center justify-center gap-1.5">
-        <i data-lucide="check-circle" class="w-4 h-4"></i>
-        <span>丸つけも直しもおわり！（タスク完了）</span>
+      <button id="directCompleteFromBreakBtn" onclick="completeCurrentTaskDirectlyFromBreak()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-xs shadow-xs mb-1.5">
+        丸つけも直しもおわり！（タスク完了）
       </button>
-
-      <button id="skipBreakBtn" onclick="skipBreakAndProceed()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-black text-xs transition mb-2">
-        休憩なし（続けて次の勉強へ！）
+      <button id="skipBreakBtn" onclick="skipBreakAndProceed()" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-black text-xs mb-1">
+        休憩なし（次へ進む）
       </button>
-
-      <p class="text-[11px] text-slate-400">※時間を選ぶと休憩タイマーが自動でスタートします</p>
     </div>
   </div>
 
-  <!-- 5. 勉強終了・実績サマリーモーダル -->
+  <div id="breakFinishedModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xs w-full p-5 shadow-2xl border-2 border-indigo-300 text-center animate-in fade-in zoom-in-95" onclick="event.stopPropagation()">
+      <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-2 animate-bounce">
+        <i data-lucide="bell-ring" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-base font-black text-slate-850 mb-0.5">休憩時間がおわったよ！</h3>
+      <p id="breakFinishedNextTaskText" class="text-xs font-bold text-slate-600 mb-4 leading-relaxed">
+        リフレッシュできたかな？テキストを開こう！
+      </p>
+      <button onclick="dismissBreakFinishedModal()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs shadow-md transition flex items-center justify-center gap-1.5">
+        <i data-lucide="bell-off" class="w-4 h-4"></i>
+        <span>アラームを止めて次を始める！</span>
+      </button>
+    </div>
+  </div>
+
   <div id="allStudyCompleteModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 text-center animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col" onclick="event.stopPropagation()">
-      <div id="summaryIconContainer" class="w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
-        <i data-lucide="party-popper" id="summaryHeaderIcon" class="w-8 h-8"></i>
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 text-center max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
+      <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-1.5">
+        <i data-lucide="party-popper" class="w-6 h-6"></i>
       </div>
-      
-      <h3 id="summaryMainTitle" class="text-lg font-black text-slate-800 mb-1">🎉 今日の勉強が終わりました！</h3>
-      
-      <div id="summaryLessonBanner" class="p-2.5 bg-sky-50 border-2 border-sky-300 rounded-2xl text-sky-900 font-black text-xs my-2 flex items-center justify-center gap-2 shadow-sm">
-        <i data-lucide="backpack" class="w-4 h-4 text-sky-600"></i>
-        <span>忘れ物はない？「習い事の準備」をしよう！</span>
-      </div>
+      <h3 id="summaryMainTitle" class="text-base font-black text-slate-800 mb-1">🎉 今日の勉強が終わりました！</h3>
 
-      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 my-2 text-left">
-        <div class="flex items-center justify-between text-xs font-bold text-slate-600 mb-1.5">
-          <span>時間達成率: <strong id="summaryProgressPercent" class="text-base font-black text-indigo-600">0%</strong></span>
-          <span class="text-[11px] text-slate-400">完了 <strong id="summaryCompletedMins" class="text-slate-700">0</strong>分 / 予定 <strong id="summaryTotalMins" class="text-slate-700">0</strong>分</span>
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 my-2 text-left text-xs font-bold">
+        <div class="flex items-center justify-between text-slate-600 mb-1">
+          <span>達成率: <strong id="summaryProgressPercent" class="text-indigo-600">0%</strong></span>
+          <span>完了 <strong id="summaryCompletedMins">0</strong>m / 予定 <strong id="summaryTotalMins">0</strong>m</span>
         </div>
-        <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-          <div id="summaryProgressBar" class="bg-indigo-600 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden mb-1.5">
+          <div id="summaryProgressBar" class="bg-indigo-600 h-full rounded-full transition-all duration-700" style="width: 0%"></div>
         </div>
-        <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 mt-2">
-          <span>開始: <strong id="summaryStartText" class="text-slate-800">--:--</strong></span>
-          <span>終了: <strong id="summaryFinishText" class="text-emerald-600">--:--</strong></span>
+        <div class="flex items-center justify-between text-[10px] text-slate-500">
+          <span>開始: <strong id="summaryStartText">--:--</strong></span>
+          <span>終了: <strong id="summaryFinishText">--:--</strong></span>
         </div>
       </div>
 
-      <div id="uncompletedSection" class="hidden mb-2 text-left">
-        <div class="font-black text-xs text-rose-600 mb-1 flex items-center gap-1">
-          <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
-          <span>やりきれなかったこと（次回に持ち越し）:</span>
-        </div>
-        <div class="bg-rose-50/70 border border-rose-200 rounded-xl p-2 max-h-24 overflow-y-auto custom-scroll touch-scroll">
-          <ul id="uncompletedTasksList" class="space-y-1 text-xs font-bold text-rose-900"></ul>
-        </div>
-      </div>
-
-      <div class="text-left font-black text-xs text-slate-600 mb-1 flex items-center gap-1">
-        <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i>
-        <span>今日の実績ログ一覧:</span>
-      </div>
-
-      <div class="flex-1 min-h-0 overflow-y-auto custom-scroll touch-scroll border border-slate-200 rounded-xl mb-3 bg-slate-50">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-slate-200/70 text-slate-600 font-black sticky top-0">
+      <div class="flex-1 min-h-0 overflow-y-auto custom-scroll border border-slate-200 rounded-xl mb-3 bg-slate-50">
+        <table class="w-full text-left text-[11px]">
+          <thead class="bg-slate-200 text-slate-600 font-black sticky top-0">
             <tr>
-              <th class="p-2">項目名</th>
-              <th class="p-2 text-center">開始</th>
-              <th class="p-2 text-center">終了</th>
-              <th class="p-2 text-right">状態</th>
+              <th class="p-1.5">項目名</th>
+              <th class="p-1.5 text-center">作業実績</th>
+              <th class="p-1.5 text-right">状態</th>
             </tr>
           </thead>
           <tbody id="summaryTasksTableBody" class="divide-y divide-slate-200 font-bold text-slate-700"></tbody>
         </table>
       </div>
 
-      <button onclick="closeAllStudyCompleteModal()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs shadow-md transition flex items-center justify-center gap-1.5">
-        <i data-lucide="check" class="w-4 h-4"></i>
-        <span>閉じる</span>
-      </button>
+      <button onclick="closeAllStudyCompleteModal()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs shadow-xs">閉じる</button>
     </div>
   </div>
 
   <script>
     const DAYS_ORDER = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
+    const SHORT_DAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
     const DEFAULT_RETURN_TIMES = {
-      "月曜日": "14:40",
-      "火曜日": "15:40",
-      "水曜日": "13:30",
-      "木曜日": "15:40",
-      "金曜日": "14:40",
-      "土曜日": "09:00",
-      "日曜日": "09:00"
+      "月曜日": "14:40", "火曜日": "15:40", "水曜日": "13:30",
+      "木曜日": "15:40", "金曜日": "14:40", "土曜日": "09:00", "日曜日": "09:00"
     };
 
     const DEFAULT_MASTER_MD = `# 科目別マスター設定
 
 ## 学校宿題
-- 音読・計算ドリル: 15
-- 宿題プリント: 20
-- 自主学習・日記: 20
+- 漢字: 25
+- 音読: 15
+- 計算: 25
+- 日記: 20
+- その他: 30
 
 ## 算数
-- 基礎力トレーニング: 15
+- ひとりで: 25
+- 思いおこし: 20
 - 学び直し①: 25
+- 学び直し③: 50
+- 学び直し①やり直し: 25
+- 学び直し③やり直し: 25
 - 学び直し②: 30
-- 学び直し③: 30
-- 自分で: 25
-- デイリーチェック直し: 20
+- 授業動画: 25
 
 ## 国語
-- 漢字学習・直し: 15
-- 言葉ナビ: 15
-- デイリーチェック直し: 15
-- 読解デイリー演習: 25
-- 記述の演習: 30
+- 漢字練習: 20
+- 漢字テスト: 15
+- 思いおこし: 20
+- 学び直し①: 25
+- 学び直し③: 50
+- 学び直し①読む: 15
+- 授業動画: 25
 
 ## 理科
-- デイリーチェック直し: 15
-- ポイントチェック・テーマ: 15
-- 確認問題[1]〜[3]: 20
-- 確認問題[4]〜[6]: 25
+- 思いおこし: 20
+- 学び直し①: 25
+- 学び直し③: 25
+- 基礎: 25
+- 授業動画: 25
 
 ## 社会
-- デイリーチェック直し: 15
-- テーマ確認・白地図: 20
-- 要点チェック・問題: 20
-
-## 習い事
-- 日能研: 180
-- NITTAI: 240
-- スイミング: 60
-- ピアノ: 45
+- 思いおこし: 20
+- 学び直し①: 25
+- 学び直し③: 25
+- 基礎: 25
+- 授業動画: 25
 
 ## 休憩
-- 短い息抜き: 10
-- リフレッシュ休憩: 15
-- おやつ休憩: 20
+- ちょっと休憩: 10
+- ゆっくり休憩: 20
+- おやつ休憩: 15
+
+## テスト直し
+- 算数-共通: 25
+- 国語-共通: 25
+- 理科: 25
+- 社会: 25
+- 算数-応用: 25
+- 国語-応用: 25
+
+## 習い事フェ
+- 🤺祖師ヶ谷(19:00) : 120
+- 🤺世田谷(19:00) : 120
+- 🤺NITTAI(16:00) : 240
+- 🤺大会() : 240
+- 🤺練習() : 120
+
+## 習い事N研
+- 国＋理社(17:00): 240
+- 算数(17:00): 240
+- 育成テスト(9:30): 240
+- 公開模試(9:30): 240
 `;
+
+    const DEFAULT_2WEEK_MD = `# 1週目
+
+## 日曜日
+- 国語
+- 漢字テスト: 15
+- テスト直し
+- 理科: 25
+- テスト直し
+- 社会: 25
+
+## 月曜日
+- 学校宿題
+- 漢字: 25
+- 習い事N研
+- 国＋理社(17:00): 240
+
+## 火曜日
+- 学校宿題
+- 漢字: 25
+- 国語
+- 思いおこし: 20
+- 国語
+- 学び直し①: 25
+- 国語
+- 学び直し③: 50
+- 理科
+- 思いおこし: 20
+- 国語
+- 漢字練習: 20
+- 習い事フェ
+- 🤺祖師ヶ谷(19:00): 120
+
+## 水曜日
+- 学校宿題
+- 漢字: 25
+- 国語
+- 漢字練習: 20
+- 理科
+- 学び直し①: 25
+- 理科
+- 学び直し③: 25
+
+## 木曜日
+- 学校宿題
+- 漢字: 25
+- 習い事N研
+- 算数(17:00): 240
+
+## 金曜日
+- 学校宿題
+- 漢字: 25
+- 算数
+- 学び直し①: 25
+- 算数
+- 学び直し③: 25
+
+## 土曜日
+- 算数
+- 学び直し③: 30
+- 国語
+- 漢字練習: 20
+- 理科
+- 基礎: 25
+- 習い事フェ
+- 🤺NITTAI(16:00): 240
+
+# 2週目
+
+## 日曜日
+- 算数
+- 学び直し①やり直し: 25
+- 算数
+- 学び直し③やり直し: 25
+- 理科
+- 基礎: 25
+
+## 月曜日
+- 学校宿題
+- 漢字: 25
+- 習い事N研
+- 国＋理社(17:00): 240
+
+## 火曜日
+- 国語
+- 思いおこし: 20
+- 国語
+- 学び直し①: 25
+- 国語
+- 学び直し③: 50
+- 社会
+- 思いおこし: 20
+- 習い事フェ
+- 🤺祖師ヶ谷(19:00): 120
+
+## 水曜日
+- 社会
+- 学び直し①: 25
+- 社会
+- 学び直し③: 25
+- 社会
+- 基礎: 25
+- 学校宿題
+- 漢字: 25
+- 算数
+- 学び直し①やり直し: 25
+
+## 木曜日
+- 学校宿題
+- 漢字: 25
+- 習い事N研
+- 算数(17:00): 240
+
+## 金曜日
+- 算数
+- 学び直し①: 25
+- 算数
+- 学び直し③: 50
+- 算数
+- 学び直し①やり直し: 25
+- 理科
+- 基礎: 25
+- 社会
+- 基礎: 25
+
+## 土曜日
+- 習い事フェ
+- 🤺NITTAI(16:00): 240
+- 習い事N研
+- 育成テスト(9:30): 240
+`;
+
+    const MASTER_VERSION = "20261011_v11";
+    const SCHEDULE_VERSION = "20261011_v11";
 
     let isParentMode = false;
     let masterData = {};
@@ -520,10 +694,13 @@
     let currentTasks = [];
     let activeTaskIndex = null;
     let timerInterval = null;
+    let breakAlarmInterval = null;
     let remainingSeconds = 0;
     let totalDurationSeconds = 0;
     let isRunning = false;
 
+    let cycleStartDateStr = ""; // ★ 2週間の開始日 (YYYY-MM-DD)
+    let modalCurrentWeek = 1;
     let parentCurrentWeek = 1;
     let parentCurrentDay = "日曜日";
 
@@ -534,23 +711,733 @@
     let currentBreakContext = 'done';
     let pendingStartTaskIndex = null;
 
-    // Web Audio API
-    let audioCtx = null;
-    function getAudioContext() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
+    function getTodayKey() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `study_quest_tasks_${y}-${m}-${d}`;
     }
 
-    function playTone(freq, type, duration, delay = 0) {
+    // 直近の日曜日の YYYY-MM-DD を取得
+    function getRecentSundayStr(date = new Date()) {
+      const d = new Date(date);
+      const day = d.getDay();
+      d.setDate(d.getDate() - day);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const dateNum = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${dateNum}`;
+    }
+
+    function onCycleStartDateChanged() {
+      const inputVal = document.getElementById('parentCycleStartDateInput').value;
+      if (inputVal) {
+        cycleStartDateStr = inputVal;
+        localStorage.setItem('study_quest_cycle_start_date', cycleStartDateStr);
+        renderWeeklyModalContent();
+      }
+    }
+
+    function detectCategory(text) {
+      if (/算数|計算|ひとりで/i.test(text)) return 'math';
+      if (/国語|漢字|音読|日記/i.test(text)) return 'japanese';
+      if (/理科/i.test(text)) return 'science';
+      if (/社会/i.test(text)) return 'social';
+      if (/休憩/i.test(text)) return 'break';
+      if (/テスト直し/i.test(text)) return 'review';
+      if (/習い事|フェ|N研|日能研|祖師ヶ谷|世田谷|NITTAI|大会|練習|育成テスト|公開模試/i.test(text)) return 'lesson';
+      return 'homework';
+    }
+
+    function isLessonTask(task) {
+      if (task.category === 'lesson') return true;
+      if (task.majorCategory && /習い事|日能研|N研|フェ/i.test(task.majorCategory)) return true;
+      return false;
+    }
+
+    function getCategoryStyle(cat) {
+      switch(cat) {
+        case 'math':
+          return { bg: 'bg-blue-50/70', border: 'border-blue-200', text: 'text-blue-900', icon: '📐', label: '算数', tagBg: 'bg-blue-100', tagText: 'text-blue-800' };
+        case 'japanese':
+          return { bg: 'bg-rose-50/70', border: 'border-rose-200', text: 'text-rose-900', icon: '📖', label: '国語', tagBg: 'bg-rose-100', tagText: 'text-rose-800' };
+        case 'science':
+          return { bg: 'bg-emerald-50/70', border: 'border-emerald-200', text: 'text-emerald-900', icon: '🧪', label: '理科', tagBg: 'bg-emerald-100', tagText: 'text-emerald-800' };
+        case 'social':
+          return { bg: 'bg-orange-50/70', border: 'border-orange-200', text: 'text-orange-900', icon: '🌏', label: '社会', tagBg: 'bg-orange-100', tagText: 'text-orange-800' };
+        case 'break':
+          return { bg: 'bg-purple-50/70', border: 'border-purple-200', text: 'text-purple-900', icon: '☕', label: '休憩', tagBg: 'bg-purple-100', tagText: 'text-purple-800' };
+        case 'review':
+          return { bg: 'bg-amber-50/70', border: 'border-amber-200', text: 'text-amber-900', icon: '✏️', label: 'テスト直し', tagBg: 'bg-amber-100', tagText: 'text-amber-800' };
+        case 'lesson':
+          return { bg: 'bg-sky-50/70', border: 'border-sky-200', text: 'text-sky-900', icon: '🎒', label: '習い事', tagBg: 'bg-sky-100', tagText: 'text-sky-800' };
+        default:
+          return { bg: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-800', icon: '📝', label: '宿題・自習', tagBg: 'bg-slate-100', tagText: 'text-slate-700' };
+      }
+    }
+
+    function parseMasterMarkdown(mdText) {
+      const data = {};
+      const lines = mdText.split(/\r?\n/);
+      let currentMajor = null;
+
+      lines.forEach(rawLine => {
+        const line = rawLine.trim();
+        if (!line) return;
+
+        if (line.startsWith('## ')) {
+          currentMajor = line.replace('## ', '').trim();
+          data[currentMajor] = [];
+          return;
+        }
+
+        if (line.startsWith('- ') && currentMajor) {
+          const content = line.replace(/^- /, '').trim();
+          const match = content.match(/^(.*?)(?:[（(]([^）)]*)[）)])?\s*[:：]\s*(\d+)$/);
+          if (match) {
+            const rawName = match[1].trim();
+            const timePart = match[2] ? match[2].trim() : null;
+            const minutes = parseInt(match[3], 10);
+
+            let defaultStartTime = null;
+            let timePending = false;
+            if (timePart !== null) {
+              if (timePart === "") timePending = true;
+              else if (/^\d{1,2}:\d{2}$/.test(timePart)) {
+                const [h, m] = timePart.split(':');
+                defaultStartTime = `${h.padStart(2, '0')}:${m}`;
+              }
+            }
+
+            data[currentMajor].push({
+              major: currentMajor,
+              name: rawName,
+              minutes: minutes,
+              startTime: defaultStartTime,
+              timePending: timePending,
+              category: detectCategory(currentMajor + ' ' + rawName)
+            });
+          }
+        }
+      });
+      return data;
+    }
+
+    function parse2WeekMarkdown(mdText) {
+      const schedule = { 1: {}, 2: {} };
+      const lines = mdText.split(/\r?\n/);
+      let currentWeek = 1;
+      let currentDay = "日曜日";
+      let pendingMajor = null;
+
+      lines.forEach(rawLine => {
+        const line = rawLine.trim();
+        if (!line) return;
+
+        if (line.startsWith('# 1週目')) { currentWeek = 1; return; }
+        if (line.startsWith('# 2週目')) { currentWeek = 2; return; }
+        if (line.startsWith('## ')) {
+          currentDay = line.replace('## ', '').trim();
+          if (!schedule[currentWeek][currentDay]) schedule[currentWeek][currentDay] = [];
+          pendingMajor = null;
+          return;
+        }
+
+        if (line.startsWith('- ')) {
+          const content = line.replace(/^- /, '').trim();
+          const match = content.match(/^(.*?)(?:[（(]([^）)]*)[）)])?\s*[:：]\s*(\d+)$/);
+
+          if (match) {
+            const itemName = match[1].trim();
+            const timePart = match[2] ? match[2].trim() : null;
+            const minutes = parseInt(match[3], 10);
+            const major = pendingMajor || "自習";
+
+            let defaultStartTime = null;
+            let timePending = false;
+            if (timePart !== null) {
+              if (timePart === "") timePending = true;
+              else if (/^\d{1,2}:\d{2}$/.test(timePart)) {
+                const [h, m] = timePart.split(':');
+                defaultStartTime = `${h.padStart(2, '0')}:${m}`;
+              }
+            }
+
+            if (!schedule[currentWeek][currentDay]) schedule[currentWeek][currentDay] = [];
+            schedule[currentWeek][currentDay].push({
+              majorCategory: major,
+              name: itemName,
+              minutes: minutes,
+              startTime: defaultStartTime,
+              timePending: timePending,
+              category: detectCategory(major + ' ' + itemName)
+            });
+            pendingMajor = null;
+          } else {
+            pendingMajor = content;
+          }
+        }
+      });
+      return schedule;
+    }
+
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          document.getElementById('wakeLockBadge').classList.remove('hidden');
+          wakeLock.addEventListener('release', () => {
+            wakeLock = null;
+            document.getElementById('wakeLockBadge').classList.add('hidden');
+          });
+        }
+      } catch (err) {}
+    }
+
+    function releaseWakeLock() {
+      if (wakeLock !== null) {
+        wakeLock.release();
+        wakeLock = null;
+        document.getElementById('wakeLockBadge').classList.add('hidden');
+      }
+    }
+
+    function isJapaneseHoliday(date) {
+      const y = date.getFullYear();
+      const m = date.getMonth() + 1;
+      const d = date.getDate();
+      const day = date.getDay();
+
+      if (m === 1 && d === 1) return true;
+      if (m === 2 && d === 11) return true;
+      if (m === 2 && d === 23) return true;
+      if (m === 4 && d === 29) return true;
+      if (m === 5 && d === 3) return true;
+      if (m === 5 && d === 4) return true;
+      if (m === 5 && d === 5) return true;
+      if (m === 8 && d === 11) return true;
+      if (m === 11 && d === 3) return true;
+      if (m === 11 && d === 23) return true;
+
+      const nthMonday = (targetNth) => {
+        const firstDay = new Date(y, m - 1, 1).getDay();
+        const firstMonday = firstDay <= 1 ? (2 - firstDay) : (9 - firstDay);
+        return firstMonday + (targetNth - 1) * 7;
+      };
+      if (m === 1 && d === nthMonday(2)) return true;
+      if (m === 7 && d === nthMonday(3)) return true;
+      if (m === 9 && d === nthMonday(3)) return true;
+      if (m === 10 && d === nthMonday(2)) return true;
+
+      const vernalEquinox = Math.floor(20.8431 + 0.242194 * (y - 1980) - Math.floor((y - 1980) / 4));
+      const autumnEquinox = Math.floor(23.2488 + 0.242194 * (y - 1980) - Math.floor((y - 1980) / 4));
+      if (m === 3 && d === vernalEquinox) return true;
+      if (m === 9 && d === autumnEquinox) return true;
+
+      if (day === 1) {
+        const prev = new Date(date);
+        prev.setDate(prev.getDate() - 1);
+        if (isJapaneseHoliday(prev)) return true;
+      }
+      return false;
+    }
+
+    function isWeekendOrHoliday(date = new Date()) {
+      const day = date.getDay();
+      return day === 0 || day === 6 || isJapaneseHoliday(date);
+    }
+
+    function getTodayDayName() {
+      return DAYS_ORDER[new Date().getDay()];
+    }
+
+    function getTodayReturnTime() {
+      return DEFAULT_RETURN_TIMES[getTodayDayName()] || "15:00";
+    }
+
+    function formatTimeStr(date) {
+      const h = String(date.getHours()).padStart(2, '0');
+      const m = String(date.getMinutes()).padStart(2, '0');
+      return `${h}:${m}`;
+    }
+
+    function updateDateAndClock() {
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const date = now.getDate();
+      const dayIndex = now.getDay();
+      const dayName = SHORT_DAYS[dayIndex];
+
+      document.getElementById('todayDateText').textContent = `${month}月${date}日 (${dayName})`;
+
+      const isHoliday = isJapaneseHoliday(now);
+      const dateAreaEl = document.getElementById('todayDateArea');
+      if (dayIndex === 0 || isHoliday) dateAreaEl.className = "flex items-center gap-2 font-black text-2xl tracking-tight text-rose-600";
+      else if (dayIndex === 6) dateAreaEl.className = "flex items-center gap-2 font-black text-2xl tracking-tight text-blue-600";
+      else dateAreaEl.className = "flex items-center gap-2 font-black text-2xl tracking-tight text-slate-800";
+
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('realtimeClockText').textContent = `${h}:${m}`;
+
+      renderTimelineCurrentTimeLine();
+    }
+
+    // ========================================================
+    // ★ メイン画面 1カラム目（今日のタスク ＆ 習い事描画）
+    // ========================================================
+    function renderTasks() {
+      const taskContainer = document.getElementById('taskListContainer');
+      const lessonContainer = document.getElementById('lessonListContainer');
+      taskContainer.innerHTML = '';
+      lessonContainer.innerHTML = '';
+
+      const studyTasks = [];
+      const lessonTasks = [];
+
+      currentTasks.forEach((task, index) => {
+        if (isLessonTask(task)) lessonTasks.push({ task, index });
+        else studyTasks.push({ task, index });
+      });
+
+      if (studyTasks.length === 0) {
+        taskContainer.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-slate-300 py-10">
+            <i data-lucide="clipboard-list" class="w-8 h-8 stroke-1 mb-1.5"></i>
+            <p class="text-xs font-bold text-center">ヘッダーの「今日勉スタート」または<br>「＋ 追加」から勉強を入れてね</p>
+          </div>
+        `;
+      } else {
+        studyTasks.forEach(({ task, index }) => {
+          const style = getCategoryStyle(task.category);
+          const isActive = activeTaskIndex === index;
+          const isCompleted = task.status === 'completed';
+          const isStopped = task.status === 'stopped';
+          const isGrading = task.status === 'grading';
+
+          const el = document.createElement('div');
+          let cardTheme = style.bg;
+          let borderTheme = style.border;
+          if (isGrading) {
+            cardTheme = "bg-purple-50/80";
+            borderTheme = "border-purple-400 ring-1 ring-purple-300";
+          }
+
+          el.className = `p-2 rounded-xl border flex items-center justify-between flex-shrink-0 transition cursor-pointer ${cardTheme} ${
+            isActive ? 'ring-2 ring-indigo-500 border-indigo-400 shadow-sm' : borderTheme
+          } ${isCompleted ? 'opacity-50' : ''}`;
+          el.onclick = () => selectTask(index);
+
+          el.innerHTML = `
+            <div class="flex items-center gap-1.5 flex-1 min-w-0">
+              <span class="text-xs">${style.icon}</span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[9px] font-black px-1 py-0.2 rounded bg-white/70 border border-slate-200 text-slate-600">${task.majorCategory}</span>
+                  <span class="text-xs font-black truncate ${isCompleted ? 'line-through text-slate-500' : style.text}">${task.name}</span>
+                  ${isStopped ? '<span class="text-[8px] px-1 py-0.2 bg-amber-200 text-amber-900 rounded font-black">？ わからない</span>' : ''}
+                  ${isGrading ? '<span class="text-[9px] px-1.5 py-0.2 bg-purple-600 text-white rounded font-black animate-pulse">✎ 丸つけ中</span>' : ''}
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+              ${!isCompleted ? `
+                <div class="flex items-center gap-0.5 bg-white/80 px-1 py-0.5 rounded-lg border border-slate-200">
+                  <button onclick="adjustTaskMinutes(${index}, -5)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">-</button>
+                  <span class="text-[10px] font-black text-slate-700 min-w-5 text-center">${task.minutes}m</span>
+                  <button onclick="adjustTaskMinutes(${index}, 5)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">+</button>
+                </div>
+              ` : '<span class="text-emerald-700 font-black text-[11px] mr-1 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-200">✓ 完了済</span>'}
+              <button onclick="removeTask(${index})" class="p-1 text-slate-400 hover:text-rose-500 rounded">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          `;
+          taskContainer.appendChild(el);
+        });
+      }
+
+      if (lessonTasks.length === 0) {
+        lessonContainer.innerHTML = `
+          <div class="h-full flex items-center justify-center text-slate-300 text-xs font-bold py-3">
+            今日の習いごと・通塾の予定はありません
+          </div>
+        `;
+      } else {
+        lessonTasks.forEach(({ task, index }) => {
+          const style = getCategoryStyle(task.category);
+          const el = document.createElement('div');
+          el.className = `p-1.5 rounded-xl border flex items-center justify-between flex-shrink-0 ${style.bg} ${style.border}`;
+
+          const timeBadge = task.startTime 
+            ? `<span class="text-[10px] font-mono font-black text-indigo-700 bg-indigo-50 border border-indigo-200 px-1 rounded">${task.startTime}〜</span>` 
+            : `<button onclick="promptSetLessonTime(${index})" class="text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1 rounded hover:bg-amber-100">時刻指定</button>`;
+
+          el.innerHTML = `
+            <div class="flex items-center gap-1.5 flex-1 min-w-0">
+              <span class="text-xs">${style.icon}</span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1 flex-wrap">
+                  <span class="text-[9px] font-black px-1 py-0.2 rounded bg-sky-100 border border-sky-300 text-sky-800">${task.majorCategory}</span>
+                  <span class="text-xs font-black truncate text-sky-950">${task.name}</span>
+                  ${timeBadge}
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+              <div class="flex items-center gap-0.5 bg-white/80 px-1 py-0.5 rounded-lg border border-slate-200">
+                <button onclick="adjustTaskMinutes(${index}, -10)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">-</button>
+                <span class="text-[10px] font-black text-slate-700 min-w-6 text-center">${task.minutes}m</span>
+                <button onclick="adjustTaskMinutes(${index}, 10)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">+</button>
+              </div>
+              <button onclick="removeTask(${index})" class="p-1 text-slate-400 hover:text-rose-500 rounded">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          `;
+          lessonContainer.appendChild(el);
+        });
+      }
+      lucide.createIcons();
+    }
+
+    // ========================================================
+    // ★ 2週間スケジュール画面（モーダル：実際の日付を連携計算）
+    // ========================================================
+    function openWeeklyModal() {
+      document.getElementById('weeklyModal').classList.remove('hidden');
+      renderWeeklyModalContent();
+    }
+
+    function closeWeeklyModal() {
+      document.getElementById('weeklyModal').classList.add('hidden');
+    }
+
+    function switchModalWeek(w) {
+      modalCurrentWeek = w;
+      document.getElementById('modalWeek1Btn').className = w === 1 ? "px-4 py-1.5 rounded-lg bg-white shadow-xs text-indigo-600 font-black transition" : "px-4 py-1.5 rounded-lg text-slate-600 transition";
+      document.getElementById('modalWeek2Btn').className = w === 2 ? "px-4 py-1.5 rounded-lg bg-white shadow-xs text-indigo-600 font-black transition" : "px-4 py-1.5 rounded-lg text-slate-600 transition";
+      renderWeeklyModalContent();
+    }
+
+    function renderWeeklyModalContent() {
+      const container = document.getElementById('weeklyModalColumns');
+      container.innerHTML = '';
+
+      // 基準開始日（第1週日曜日）のDateオブジェクトを作成
+      const baseDate = cycleStartDateStr ? new Date(cycleStartDateStr + 'T00:00:00') : new Date();
+      const todayStr = (new Date()).toISOString().split('T')[0];
+
+      DAYS_ORDER.forEach((dayName, colIdx) => {
+        // 第1週なら +colIdx日、第2週なら +(colIdx + 7)日
+        const targetDate = new Date(baseDate);
+        const dayOffset = (modalCurrentWeek === 1 ? 0 : 7) + colIdx;
+        targetDate.setDate(targetDate.getDate() + dayOffset);
+
+        const m = targetDate.getMonth() + 1;
+        const d = targetDate.getDate();
+        const targetDateStr = targetDate.toISOString().split('T')[0];
+        const isToday = (targetDateStr === todayStr);
+
+        const col = document.createElement('div');
+        col.className = `flex flex-col h-full min-h-0 ${isToday ? 'bg-indigo-50/50 ring-2 ring-inset ring-indigo-400' : 'bg-white'}`;
+
+        let headerColor = "text-slate-700";
+        if (colIdx === 0) headerColor = "text-rose-600";
+        if (colIdx === 6) headerColor = "text-blue-600";
+
+        col.innerHTML = `
+          <div class="p-2 border-b border-slate-200 text-center flex-shrink-0 ${isToday ? 'bg-indigo-100/80' : 'bg-slate-100/60'}">
+            <div class="text-xs font-black ${headerColor}">
+              ${dayName}
+              ${isToday ? '<span class="ml-1 px-1.5 py-0.2 rounded-full bg-indigo-600 text-white text-[9px]">今日</span>' : ''}
+            </div>
+            <div class="text-[10px] font-bold text-slate-400 font-mono mt-0.5">
+              ${m}/${d}
+            </div>
+          </div>
+          <div class="flex-1 min-h-0 overflow-y-auto p-2 custom-scroll touch-scroll flex flex-col gap-1.5" id="modalColList_${colIdx}"></div>
+        `;
+        container.appendChild(col);
+
+        const listEl = col.querySelector(`#modalColList_${colIdx}`);
+
+        // 今日かつ該当週であれば currentTasks を描画
+        if (isToday) {
+          if (currentTasks.length === 0) {
+            listEl.innerHTML = `<div class="text-xs text-slate-300 text-center py-6">今日の予定なし</div>`;
+          } else {
+            currentTasks.forEach(task => {
+              const card = createModalTaskCard(task);
+              listEl.appendChild(card);
+            });
+          }
+        } else {
+          // それ以外の日は 2週スケジュールから取得
+          const schedList = (twoWeekSchedule[modalCurrentWeek] && twoWeekSchedule[modalCurrentWeek][dayName]) || [];
+          if (schedList.length === 0) {
+            listEl.innerHTML = `<div class="text-xs text-slate-300 text-center py-6">予定なし</div>`;
+          } else {
+            schedList.forEach(task => {
+              const card = createModalTaskCard(task);
+              listEl.appendChild(card);
+            });
+          }
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function createModalTaskCard(task) {
+      const card = document.createElement('div');
+      const isLesson = isLessonTask(task);
+      const isDone = (task.status === 'completed');
+
+      let bgTheme = "bg-slate-50 border-slate-200 text-slate-800";
+      if (isLesson) bgTheme = "bg-sky-50 border-sky-300 text-sky-950 font-black";
+      else if (isDone) bgTheme = "bg-slate-100 border-slate-200 text-slate-400 line-through";
+
+      card.className = `p-2 rounded-xl border text-xs flex flex-col gap-1 shadow-2xs ${bgTheme}`;
+      const timeBadge = task.startTime ? `<span class="text-[10px] font-mono px-1 rounded bg-sky-200/80 text-sky-900 font-bold">${task.startTime}〜</span>` : '';
+
+      card.innerHTML = `
+        <div class="flex items-center justify-between gap-1 leading-tight">
+          <span class="font-bold truncate">${task.name}</span>
+          <span class="text-[10px] opacity-70 flex-shrink-0">${task.minutes}分</span>
+        </div>
+        ${timeBadge ? `<div class="flex items-center gap-1">${timeBadge}</div>` : ''}
+      `;
+      return card;
+    }
+
+    // ========================================================
+    // ★ 中央タイムラインバー（過去＝実績・直し / 未来＝予測）
+    // ========================================================
+    let timelineStartMinutes = 14 * 60;
+    let timelineEndMinutes = 21 * 60;
+
+    function getTargetDeadlineMinutes() {
+      const targetVal = document.getElementById('targetEndTimeInput').value || targetFinishTime;
+      if (targetVal) {
+        const [tH, tM] = targetVal.split(':').map(Number);
+        return tH * 60 + tM;
+      }
+      const dinnerVal = document.getElementById('dinnerTimeInput').value || "18:00";
+      if (dinnerVal) {
+        const [dH, dM] = dinnerVal.split(':').map(Number);
+        return dH * 60 + dM;
+      }
+      return 18 * 60;
+    }
+
+    function updateTimelineRange() {
+      const now = new Date();
+      const isOff = isWeekendOrHoliday(now);
+
+      let rawStartM = 14 * 60 + 40;
+      if (!isOff) {
+        const retTimeStr = getTodayReturnTime();
+        const [rH, rM] = retTimeStr.split(':').map(Number);
+        rawStartM = rH * 60 + rM;
+      } else {
+        rawStartM = 9 * 60;
+      }
+
+      if (studyStartTime) {
+        const [sH, sM] = studyStartTime.split(':').map(Number);
+        rawStartM = Math.min(rawStartM, sH * 60 + sM);
+      }
+
+      let startM = Math.floor(rawStartM / 60) * 60;
+      let endM = getTargetDeadlineMinutes();
+      if (!isOff && endM < 21 * 60) endM = 21 * 60;
+
+      const lessonTasks = currentTasks.filter(t => isLessonTask(t) && t.startTime);
+      lessonTasks.forEach(lt => {
+        const [lH, lM] = lt.startTime.split(':').map(Number);
+        const lessonEnd = (lH * 60 + lM) + 60;
+        if (lessonEnd > endM) endM = Math.ceil(lessonEnd / 60) * 60;
+      });
+
+      if (endM <= startM) endM = startM + 4 * 60;
+      timelineStartMinutes = startM;
+      timelineEndMinutes = endM;
+
+      const sHStr = String(Math.floor(startM / 60)).padStart(2, '0');
+      const sMStr = String(startM % 60).padStart(2, '0');
+      const eHStr = String(Math.floor(endM / 60)).padStart(2, '0');
+      const eMStr = String(endM % 60).padStart(2, '0');
+      document.getElementById('timelineSpanBadge').textContent = `${sHStr}:${sMStr}〜${eHStr}:${eMStr}`;
+    }
+
+    function renderTimeline() {
+      updateTimelineRange();
+
+      const labelsContainer = document.getElementById('timelineHourLabels');
+      const trackContainer = document.getElementById('timelineBlocksTrack');
+      labelsContainer.innerHTML = '';
+      trackContainer.innerHTML = '';
+
+      const totalSpan = timelineEndMinutes - timelineStartMinutes;
+      if (totalSpan <= 0) return;
+
+      const startHour = Math.floor(timelineStartMinutes / 60);
+      const endHour = Math.ceil(timelineEndMinutes / 60);
+
+      for (let h = startHour; h <= endHour; h++) {
+        const minuteVal = h * 60;
+        if (minuteVal < timelineStartMinutes || minuteVal > timelineEndMinutes) continue;
+
+        const topPercent = ((minuteVal - timelineStartMinutes) / totalSpan) * 100;
+        const label = document.createElement('div');
+        label.className = "absolute right-1 transform -translate-y-1/2 text-[9px] font-black text-rose-500 leading-none whitespace-nowrap";
+        label.style.top = `${topPercent}%`;
+        const displayH = h > 12 ? (h - 12) : h;
+        label.textContent = `${displayH}:00`;
+        labelsContainer.appendChild(label);
+
+        const gridLine = document.createElement('div');
+        gridLine.className = "absolute left-0 right-0 border-t border-slate-200/60 pointer-events-none";
+        gridLine.style.top = `${topPercent}%`;
+        trackContainer.appendChild(gridLine);
+      }
+
+      const dinnerVal = document.getElementById('dinnerTimeInput').value || "18:00";
+      if (dinnerVal) {
+        const [dH, dM] = dinnerVal.split(':').map(Number);
+        const dinnerMinutes = dH * 60 + dM;
+        if (dinnerMinutes >= timelineStartMinutes && dinnerMinutes <= timelineEndMinutes) {
+          const dinnerTop = ((dinnerMinutes - timelineStartMinutes) / totalSpan) * 100;
+          const dinnerLine = document.createElement('div');
+          dinnerLine.className = "absolute left-0 right-0 border-t-2 border-dashed border-amber-500 z-10 pointer-events-none";
+          dinnerLine.style.top = `${dinnerTop}%`;
+          dinnerLine.innerHTML = `<span class="absolute -top-3 right-1 px-1 py-0.2 bg-amber-500 text-white rounded font-bold text-[8px]">🍽️夕食</span>`;
+          trackContainer.appendChild(dinnerLine);
+        }
+      }
+
+      const lessonTasks = currentTasks.filter(t => isLessonTask(t) && t.startTime);
+      lessonTasks.forEach(lt => {
+        const [lH, lM] = lt.startTime.split(':').map(Number);
+        const lMinutes = lH * 60 + lM;
+        if (lMinutes >= timelineStartMinutes && lMinutes <= timelineEndMinutes) {
+          const lTop = ((lMinutes - timelineStartMinutes) / totalSpan) * 100;
+          const lLine = document.createElement('div');
+          lLine.className = "absolute left-0 right-0 border-t-2 border-sky-500 z-10 pointer-events-none";
+          lLine.style.top = `${lTop}%`;
+          lLine.innerHTML = `<span class="absolute -top-3.5 left-1 px-1 py-0.2 bg-sky-600 text-white rounded font-bold text-[8px] truncate max-w-[80px]">🎒${lt.name}</span>`;
+          trackContainer.appendChild(lLine);
+        }
+      });
+
+      // 過去の実績（解いた・直しの個別セッション）を描画
+      currentTasks.forEach((task, tIdx) => {
+        if (!isLessonTask(task) && task.intervals) {
+          task.intervals.forEach(iv => {
+            if (iv.start && iv.end) {
+              const [sH, sM] = iv.start.split(':').map(Number);
+              const [eH, eM] = iv.end.split(':').map(Number);
+              const bStart = sH * 60 + sM;
+              const bEnd = eH * 60 + eM;
+
+              if (bEnd > timelineStartMinutes && bStart < timelineEndMinutes) {
+                const cStart = Math.max(bStart, timelineStartMinutes);
+                const cEnd = Math.min(bEnd, timelineEndMinutes);
+                const topPct = ((cStart - timelineStartMinutes) / totalSpan) * 100;
+                const hPct = Math.max(2.5, ((cEnd - cStart) / totalSpan) * 100);
+
+                const block = document.createElement('div');
+                block.className = "absolute left-1 right-1 rounded border p-0.5 flex flex-col justify-center items-center text-center bg-indigo-100 border-indigo-300 text-indigo-950 font-black text-[8px] shadow-2xs cursor-pointer";
+                block.style.top = `${topPct}%`;
+                block.style.height = `${hPct}%`;
+                block.innerHTML = `
+                  <div class="truncate w-full leading-tight">[${iv.type}] ${task.name}</div>
+                  <div class="text-[7px] opacity-70">${iv.start}〜${iv.end}</div>
+                `;
+                block.onclick = () => selectTask(tIdx);
+                trackContainer.appendChild(block);
+              }
+            }
+          });
+        }
+      });
+
+      // 未来の予定ブロック（未完了分）を描画
+      const now = new Date();
+      let scheduledCursor = Math.max(timelineStartMinutes, now.getHours() * 60 + now.getMinutes());
+      const pendingStudyTasks = currentTasks.filter(t => !isLessonTask(t) && t.status !== 'completed');
+
+      pendingStudyTasks.forEach(task => {
+        const bStart = scheduledCursor;
+        const bEnd = bStart + task.minutes;
+        scheduledCursor = bEnd + 15;
+
+        if (bStart < timelineEndMinutes && bEnd > timelineStartMinutes) {
+          const cStart = Math.max(bStart, timelineStartMinutes);
+          const cEnd = Math.min(bEnd, timelineEndMinutes);
+          const topPct = ((cStart - timelineStartMinutes) / totalSpan) * 100;
+          const hPct = Math.max(2.5, ((cEnd - cStart) / totalSpan) * 100);
+
+          const block = document.createElement('div');
+          const isAct = (activeTaskIndex === currentTasks.indexOf(task));
+          block.className = `absolute left-1 right-1 rounded border border-dashed p-0.5 flex flex-col justify-center items-center text-center bg-slate-100/90 border-slate-300 text-slate-700 text-[8px] cursor-pointer ${
+            isAct ? 'ring-2 ring-indigo-500 font-black' : ''
+          }`;
+          block.style.top = `${topPct}%`;
+          block.style.height = `${hPct}%`;
+          block.innerHTML = `
+            <div class="truncate w-full leading-tight">${task.name}</div>
+            <div class="text-[7px] opacity-70">${task.minutes}m 予定</div>
+          `;
+          block.onclick = () => selectTask(currentTasks.indexOf(task));
+          trackContainer.appendChild(block);
+        }
+      });
+
+      renderTimelineCurrentTimeLine();
+    }
+
+    function renderTimelineCurrentTimeLine() {
+      const trackContainer = document.getElementById('timelineBlocksTrack');
+      if (!trackContainer) return;
+
+      const oldLine = document.getElementById('timelineNowLine');
+      if (oldLine) oldLine.remove();
+
+      const now = new Date();
+      const nowMinutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+      const totalSpan = timelineEndMinutes - timelineStartMinutes;
+
+      if (nowMinutes >= timelineStartMinutes && nowMinutes <= timelineEndMinutes && totalSpan > 0) {
+        const nowTop = ((nowMinutes - timelineStartMinutes) / totalSpan) * 100;
+        const nowLine = document.createElement('div');
+        nowLine.id = "timelineNowLine";
+        nowLine.className = "absolute left-0 right-0 border-t-2 border-rose-600 z-20 pointer-events-none flex items-center";
+        nowLine.style.top = `${nowTop}%`;
+        nowLine.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-600 -ml-1"></span>`;
+        trackContainer.appendChild(nowLine);
+      }
+    }
+
+    // 音声制御
+    let audioCtxInstance = null;
+    function getSafeAudioContext() {
+      if (!audioCtxInstance) audioCtxInstance = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtxInstance.state === 'suspended') audioCtxInstance.resume();
+      return audioCtxInstance;
+    }
+
+    function playTone(freq, type, duration, delay = 0, vol = 0.2) {
       setTimeout(() => {
         try {
-          const ctx = getAudioContext();
+          const ctx = getSafeAudioContext();
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = type;
           osc.frequency.setValueAtTime(freq, ctx.currentTime);
-          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.setValueAtTime(vol, ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
           osc.connect(gain);
           gain.connect(ctx.destination);
@@ -576,119 +1463,48 @@
     }
     function soundAlarm() {
       for(let i=0; i<3; i++) {
-        playTone(880, 'sine', 0.1, i * 200);
-        playTone(1320, 'sine', 0.15, i * 200 + 100);
+        playTone(880, 'sine', 0.1, i * 220, 0.25);
+        playTone(1320, 'sine', 0.15, i * 220 + 110, 0.25);
       }
     }
+
+    function playSingleBreakAlarmCycle() {
+      playTone(523.25, 'sine', 0.25, 0, 0.3);
+      playTone(659.25, 'sine', 0.25, 200, 0.3);
+      playTone(783.99, 'sine', 0.3, 400, 0.3);
+      playTone(1046.50, 'sine', 0.6, 600, 0.35);
+
+      for (let i = 0; i < 4; i++) {
+        playTone(987.77, 'triangle', 0.1, 1200 + i * 200, 0.35);
+        playTone(1318.51, 'triangle', 0.12, 1200 + i * 200 + 80, 0.35);
+      }
+    }
+
+    function startContinuousBreakAlarm() {
+      stopContinuousBreakAlarm();
+      playSingleBreakAlarmCycle();
+      breakAlarmInterval = setInterval(() => {
+        playSingleBreakAlarmCycle();
+      }, 2300);
+    }
+
+    function stopContinuousBreakAlarm() {
+      if (breakAlarmInterval !== null) {
+        clearInterval(breakAlarmInterval);
+        breakAlarmInterval = null;
+      }
+    }
+
     function soundWarningChime() {
       playTone(587.33, 'sine', 0.2, 0);
       playTone(880.00, 'sine', 0.3, 150);
     }
 
-    function formatTimeStr(date) {
-      return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-    }
-
-    function getTodayDayName() {
-      const idx = new Date().getDay();
-      return DAYS_ORDER[idx];
-    }
-
-    function getTodayReturnTime() {
-      const day = getTodayDayName();
-      return DEFAULT_RETURN_TIMES[day] || "15:00";
-    }
-
-    function isLessonTask(task) {
-      if (task.category === 'lesson') return true;
-      const combined = `${task.majorCategory || ''} ${task.name || ''}`;
-      return combined.includes('習い事') || combined.includes('日能研') || combined.includes('NITTAI') || combined.includes('スイミング') || combined.includes('塾');
-    }
-
-    function detectCategory(name) {
-      if (name.includes('日能研') || name.includes('習い事') || name.includes('NITTAI') || name.includes('スイミング') || name.includes('塾')) return 'lesson';
-      if (name.includes('宿題') || name.includes('学校')) return 'school';
-      if (name.includes('算数') || name.includes('計算') || name.includes('基礎トレ') || name.includes('学び直し')) return 'math';
-      if (name.includes('国語') || name.includes('漢字') || name.includes('言葉') || name.includes('読解')) return 'japanese';
-      if (name.includes('理科')) return 'science';
-      if (name.includes('社会') || name.includes('白地図')) return 'social';
-      if (name.includes('休憩')) return 'break';
-      return 'other';
-    }
-
-    function getCategoryStyle(cat) {
-      switch(cat) {
-        case 'school': return { bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-200', tagBg: 'bg-amber-100', tagText: 'text-amber-800', label: '学校宿題', icon: '🏫' };
-        case 'math': return { bg: 'bg-blue-50', text: 'text-blue-900', border: 'border-blue-200', tagBg: 'bg-blue-100', tagText: 'text-blue-800', label: '算数', icon: '📐' };
-        case 'japanese': return { bg: 'bg-rose-50', text: 'text-rose-900', border: 'border-rose-200', tagBg: 'bg-rose-100', tagText: 'text-rose-800', label: '国語', icon: '📖' };
-        case 'science': return { bg: 'bg-emerald-50', text: 'text-emerald-900', border: 'border-emerald-200', tagBg: 'bg-emerald-100', tagText: 'text-emerald-800', label: '理科', icon: '🧪' };
-        case 'social': return { bg: 'bg-orange-50', text: 'text-orange-900', border: 'border-orange-200', tagBg: 'bg-orange-100', tagText: 'text-orange-800', label: '社会', icon: '🌏' };
-        case 'lesson': return { bg: 'bg-sky-50', text: 'text-sky-900', border: 'border-sky-200', tagBg: 'bg-sky-100', tagText: 'text-sky-800', label: '習い事', icon: '🎒' };
-        case 'break': return { bg: 'bg-purple-50', text: 'text-purple-900', border: 'border-purple-200', tagBg: 'bg-purple-100', tagText: 'text-purple-800', label: '休憩', icon: '☕' };
-        default: return { bg: 'bg-slate-50', text: 'text-slate-900', border: 'border-slate-200', tagBg: 'bg-slate-100', tagText: 'text-slate-800', label: 'その他', icon: '📝' };
-      }
-    }
-
-    function parseMasterMarkdown(mdText) {
-      const result = {};
-      let currentMajor = "その他";
-      const lines = mdText.split('\n');
-
-      for (let raw of lines) {
-        const line = raw.trim();
-        if (!line) continue;
-        if (line.startsWith('##')) {
-          currentMajor = line.replace('##', '').trim();
-          if (!result[currentMajor]) result[currentMajor] = [];
-        } else if (line.startsWith('-') || line.startsWith('*')) {
-          const content = line.substring(1).trim();
-          const match = content.match(/^([^:,\(]+)(?:[:,\(])\s*(\d+)/);
-          if (match) {
-            const name = match[1].trim();
-            const minutes = parseInt(match[2], 10);
-            if (!result[currentMajor]) result[currentMajor] = [];
-            result[currentMajor].push({
-              major: currentMajor,
-              name,
-              minutes,
-              category: detectCategory(currentMajor + ' ' + name)
-            });
-          }
-        }
-      }
-      return result;
-    }
-
-    async function triggerMasterFileLoad() {
-      try {
-        const response = await fetch('./master_subject.md');
-        if (response.ok) {
-          const text = await response.text();
-          masterData = parseMasterMarkdown(text);
-          localStorage.setItem('study_quest_master_md', text);
-          renderMasterPalette();
-          alert("同階層の master_subject.md を正常に読み込みました！");
-          return;
-        }
-      } catch (e) {}
-      document.getElementById('masterFileInput').click();
-    }
-
-    function handleMasterFileUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        masterData = parseMasterMarkdown(event.target.result);
-        localStorage.setItem('study_quest_master_md', event.target.result);
-        renderMasterPalette();
-        alert(`${file.name} を読み込みました！`);
-      };
-      reader.readAsText(file);
-    }
-
-    // （２）メイン画面からの朝勉スタート
+    // ========================================================
+    // ★ タイマー制御 ＆ タスクアクション
+    // ========================================================
     function startMorningStudy() {
+      getSafeAudioContext();
       const now = new Date();
       const timeStr = formatTimeStr(now);
       studyStartTime = timeStr;
@@ -697,13 +1513,15 @@
       soundSuccess();
       alert(`🌅 朝勉スタート（${timeStr}）！\n朝の集中力はゴールデンタイム！計算や漢字を一気に終わらせよう！`);
       saveState();
+      renderTimeline();
     }
 
-    // （２）メイン画面からの勉強終了アクション
     function finishStudySessionManual(title) {
       if (!confirm(`${title}を終了しますか？実績とやりきれなかったことを確認します。`)) return;
       clearInterval(timerInterval);
+      stopContinuousBreakAlarm();
       isRunning = false;
+      releaseWakeLock();
       const now = new Date();
       studyFinishTime = formatTimeStr(now);
 
@@ -715,15 +1533,42 @@
     }
 
     function handleTimerToggleClick() {
+      getSafeAudioContext();
+      if (activeTaskIndex === null && currentTasks.length > 0) {
+        selectTask(0);
+      }
+
+      if (activeTaskIndex !== null && currentTasks[activeTaskIndex]?.status === 'completed') {
+        resumeCompletedTask(activeTaskIndex);
+        return;
+      }
+
       if (!studyStartTime) {
-        if (activeTaskIndex === null && currentTasks.length > 0) {
-          selectTask(0);
-        }
         pendingStartTaskIndex = activeTaskIndex;
         openStartStudyModal();
         return;
       }
       toggleTimer();
+    }
+
+    function resumeCompletedTask(index) {
+      if (index === null || !currentTasks[index]) return;
+      const task = currentTasks[index];
+      task.status = 'grading';
+      task.finishTime = null;
+
+      studyFinishTime = null;
+      document.getElementById('studyFinishedBadge').classList.add('hidden');
+
+      remainingSeconds = task.minutes * 60;
+      totalDurationSeconds = remainingSeconds;
+
+      soundSuccess();
+      renderTasks();
+      updateTimerUI();
+      recalculateMetrics();
+      saveState();
+      renderTimeline();
     }
 
     function openStartStudyModal() {
@@ -735,7 +1580,7 @@
       const returnTime = getTodayReturnTime();
       document.getElementById('modalReturnTimeText').textContent = `${getTodayDayName()} ${returnTime}`;
 
-      const dinnerVal = document.getElementById('dinnerTimeInput').value || "19:00";
+      const dinnerVal = document.getElementById('dinnerTimeInput').value || "18:00";
       const targetInput = document.getElementById('targetEndTimeInput');
       targetInput.value = dinnerVal;
 
@@ -781,33 +1626,31 @@
       let bgClass = "bg-blue-50 border-blue-200 text-blue-900";
 
       if (availableMinutes <= 0) {
-        comment = `⚠️ あれ？目標時刻が今より前になっているよ！もう一度確認してみてね。`;
+        comment = `⚠️ 目標時刻が今より前になっているよ！もう一度確認してみてね。`;
         bgClass = "bg-rose-50 border-rose-200 text-rose-900";
       } else {
         const margin = availableMinutes - totalMinutes;
         if (margin >= 30) {
-          comment = `✨ ${daySpecificNote}\n目標の${targetTimeVal}まで約${availableMinutes}分、勉強は${totalMinutes}分。なんと【${margin}分も自由時間】があるよ！サクッと終わらせて遊び倒そう！`;
+          comment = `✨ ${daySpecificNote}\n目標まで約${availableMinutes}分、勉強は${totalMinutes}分。なんと【${margin}分も自由時間】があるよ！`;
           bgClass = "bg-emerald-50 border-emerald-300 text-emerald-900";
         } else if (margin >= 0) {
-          comment = `👍 ${daySpecificNote}\n目標の${targetTimeVal}までほぼピッタリ（余裕${margin}分）！途中で粘りすぎず、リズムよく進めていこう！`;
+          comment = `👍 ${daySpecificNote}\n目標までほぼピッタリ（余裕${margin}分）！リズムよく進めていこう！`;
           bgClass = "bg-indigo-50 border-indigo-200 text-indigo-900";
         } else {
           const shortage = Math.abs(margin);
-          comment = `🔥 ${daySpecificNote}\n目標の${targetTimeVal}に対して勉強量が【${shortage}分オーバー】してるよ！「わからない」を上手に使って、解けない問題は後回しにするのが勝負のカギだ！`;
+          comment = `🔥 ${daySpecificNote}\n目標に対して勉強量が【${shortage}分オーバー】してるよ！「わからない」を上手に使おう！`;
           bgClass = "bg-amber-50 border-amber-300 text-amber-900";
         }
-
-        if (lessonText) {
-          comment += `\n（今日の予定「${lessonText}」の時間も忘れないようにね！）`;
-        }
+        if (lessonText) comment += `\n（今日の予定「${lessonText}」の時間も忘れないようにね！）`;
       }
 
-      commentBox.className = `p-3.5 rounded-xl border text-xs font-bold leading-relaxed mb-5 whitespace-pre-line ${bgClass}`;
+      commentBox.className = `p-2.5 rounded-xl border text-xs font-bold leading-relaxed mb-4 whitespace-pre-line ${bgClass}`;
       commentBox.textContent = comment;
       commentBox.classList.remove('hidden');
     }
 
     function confirmStartStudy() {
+      getSafeAudioContext();
       const now = new Date();
       const timeStr = formatTimeStr(now);
       studyStartTime = timeStr;
@@ -837,28 +1680,19 @@
       }
       pendingStartTaskIndex = null;
       saveState();
+      renderTimeline();
     }
 
-    // タスク追加モーダル
     function openAddTaskModal() {
       const majorSelect = document.getElementById('modalMajorInput');
       majorSelect.innerHTML = '';
       const majors = Object.keys(masterData);
-      if (majors.length === 0) {
-        ['学校宿題', '算数', '国語', '理科', '社会', '習い事', '休憩'].forEach(m => {
-          const opt = document.createElement('option');
-          opt.value = m;
-          opt.textContent = m;
-          majorSelect.appendChild(opt);
-        });
-      } else {
-        majors.forEach(m => {
-          const opt = document.createElement('option');
-          opt.value = m;
-          opt.textContent = m;
-          majorSelect.appendChild(opt);
-        });
-      }
+      majors.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        majorSelect.appendChild(opt);
+      });
       onModalMajorChanged();
       document.getElementById('addTaskModal').classList.remove('hidden');
     }
@@ -871,13 +1705,13 @@
       items.forEach((item, idx) => {
         const opt = document.createElement('option');
         opt.value = idx;
-        opt.textContent = `${item.name} (${item.minutes}分)`;
+        const timeDisplay = item.startTime ? ` (${item.startTime}〜)` : (item.timePending ? ' (時刻未定)' : '');
+        opt.textContent = `${item.name}${timeDisplay} [${item.minutes}分]`;
         subSelect.appendChild(opt);
       });
       document.getElementById('modalSubNameInput').value = '';
-      if (items.length > 0) {
-        document.getElementById('modalMinutesInput').value = items[0].minutes;
-      }
+      if (items.length > 0) document.getElementById('modalMinutesInput').value = items[0].minutes;
+      checkShowModalStartTime(major);
     }
 
     function onModalPresetSubChanged() {
@@ -888,8 +1722,16 @@
         if (item) {
           document.getElementById('modalSubNameInput').value = item.name;
           document.getElementById('modalMinutesInput').value = item.minutes;
+          if (item.startTime) document.getElementById('modalStartTimeInput').value = item.startTime;
         }
       }
+      checkShowModalStartTime(major);
+    }
+
+    function checkShowModalStartTime(major) {
+      const container = document.getElementById('modalStartTimeContainer');
+      if (/習い事|フェ|N研/i.test(major)) container.classList.remove('hidden');
+      else container.classList.add('hidden');
     }
 
     function closeAddTaskModal() {
@@ -900,24 +1742,150 @@
       const major = document.getElementById('modalMajorInput').value;
       const name = document.getElementById('modalSubNameInput').value.trim() || major;
       const mins = parseInt(document.getElementById('modalMinutesInput').value, 10) || 15;
+      let startTime = document.getElementById('modalStartTimeInput').value || null;
 
       currentTasks.push({
         id: Date.now() + Math.random(),
         majorCategory: major,
         name: name,
         minutes: mins,
+        startTime: startTime,
         category: detectCategory(major + ' ' + name),
         status: 'pending',
-        startTime: null,
+        intervals: [],
         finishTime: null
       });
       closeAddTaskModal();
       renderTasks();
       recalculateMetrics();
       saveState();
+      renderTimeline();
     }
 
-    // 丸付け判定
+    function selectTask(index) {
+      if (index < 0 || index >= currentTasks.length) return;
+
+      activeTaskIndex = index;
+      const task = currentTasks[index];
+
+      totalDurationSeconds = task.minutes * 60;
+      remainingSeconds = totalDurationSeconds;
+
+      currentTasks.forEach((t, i) => { 
+        if (t.status === 'active' && i !== index) t.status = 'pending'; 
+      });
+
+      if (task.status !== 'grading' && task.status !== 'completed') {
+        task.status = 'active';
+      }
+
+      clearInterval(timerInterval);
+      stopContinuousBreakAlarm();
+      isRunning = false;
+      releaseWakeLock();
+      updateTimerUI();
+      renderTasks();
+      saveState();
+      renderTimeline();
+    }
+
+    function toggleTimer() {
+      getSafeAudioContext();
+      if (activeTaskIndex === null) {
+        const firstStudy = currentTasks.findIndex(t => !isLessonTask(t) && t.status !== 'completed');
+        if (firstStudy !== -1) selectTask(firstStudy);
+        else return;
+      }
+
+      const task = currentTasks[activeTaskIndex];
+
+      if (isRunning) {
+        clearInterval(timerInterval);
+        stopContinuousBreakAlarm();
+        isRunning = false;
+        releaseWakeLock();
+
+        if (task && task._currentIntervalStart) {
+          if (!task.intervals) task.intervals = [];
+          const sessionType = (task.status === 'grading') ? '直し' : '解く';
+          task.intervals.push({
+            type: sessionType,
+            start: task._currentIntervalStart,
+            end: formatTimeStr(new Date())
+          });
+          task._currentIntervalStart = null;
+          renderTimeline();
+          saveState();
+        }
+      } else {
+        isRunning = true;
+        requestWakeLock();
+        task._currentIntervalStart = formatTimeStr(new Date());
+
+        timerInterval = setInterval(() => {
+          remainingSeconds--;
+          const currentTask = currentTasks[activeTaskIndex];
+          if (currentTask && currentTask.category === 'break' && remainingSeconds === 60) {
+            soundWarningChime();
+          }
+          if (remainingSeconds <= 0) {
+            clearInterval(timerInterval);
+            isRunning = false;
+            releaseWakeLock();
+
+            if (currentTask && currentTask._currentIntervalStart) {
+              if (!currentTask.intervals) currentTask.intervals = [];
+              const sessionType = (currentTask.status === 'grading') ? '直し' : '解く';
+              currentTask.intervals.push({
+                type: sessionType,
+                start: currentTask._currentIntervalStart,
+                end: formatTimeStr(new Date())
+              });
+              currentTask._currentIntervalStart = null;
+            }
+
+            if (currentTask && currentTask.category === 'break') {
+              startContinuousBreakAlarm();
+              showBreakFinishedModal(currentTask);
+            } else {
+              soundAlarm();
+              alert(`時間になりました！「${currentTask.name}」終了です。`);
+              finishTask(false);
+            }
+          }
+          updateTimerDisplay();
+        }, 1000);
+      }
+      updateTimerUI();
+    }
+
+    function showBreakFinishedModal(breakTask) {
+      const nextTask = currentTasks.slice(activeTaskIndex + 1).find(t => !isLessonTask(t) && t.status !== 'completed');
+      const textEl = document.getElementById('breakFinishedNextTaskText');
+      if (nextTask) {
+        textEl.innerHTML = `リフレッシュできたかな？<br>次は<strong>「${nextTask.majorCategory} : ${nextTask.name}」</strong>だよ！`;
+      } else {
+        textEl.innerHTML = `リフレッシュできたかな？テキストを開いて次の勉強にいこう！`;
+      }
+      document.getElementById('breakFinishedModal').classList.remove('hidden');
+    }
+
+    function dismissBreakFinishedModal() {
+      stopContinuousBreakAlarm();
+      document.getElementById('breakFinishedModal').classList.add('hidden');
+      finishTask(false);
+    }
+
+    function resetCurrentTimer() {
+      if (activeTaskIndex === null) return;
+      clearInterval(timerInterval);
+      stopContinuousBreakAlarm();
+      isRunning = false;
+      releaseWakeLock();
+      remainingSeconds = totalDurationSeconds;
+      updateTimerUI();
+    }
+
     function handleCompleteBtnClick() {
       if (activeTaskIndex === null) {
         alert("まず取り組むタスクを選んでね！");
@@ -934,45 +1902,54 @@
     function openCompleteCheckModal() {
       document.getElementById('completeCheckModal').classList.remove('hidden');
     }
-
     function closeCompleteCheckModal() {
       document.getElementById('completeCheckModal').classList.add('hidden');
     }
 
-    // （１）終わった後のダイアログ処理
     function chooseCompleteAction(action) {
       closeCompleteCheckModal();
+      if (activeTaskIndex === null) return;
+      const task = currentTasks[activeTaskIndex];
+
+      if (task && task._currentIntervalStart) {
+        if (!task.intervals) task.intervals = [];
+        const sessionType = (task.status === 'grading') ? '直し' : '解く';
+        task.intervals.push({
+          type: sessionType,
+          start: task._currentIntervalStart,
+          end: formatTimeStr(new Date())
+        });
+        task._currentIntervalStart = null;
+      }
+
       if (action === 'done') {
-        // 丸つけも直しもおわり！
-        if (activeTaskIndex !== null) {
-          const task = currentTasks[activeTaskIndex];
-          task.status = 'completed';
-          if (!task.finishTime) task.finishTime = formatTimeStr(new Date());
+        task.status = 'completed';
+        task.finishTime = formatTimeStr(new Date());
 
-          clearInterval(timerInterval);
-          isRunning = false;
-          soundSuccess();
-          confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
-          renderTasks();
-          recalculateMetrics();
-          saveState();
+        clearInterval(timerInterval);
+        isRunning = false;
+        releaseWakeLock();
+        soundSuccess();
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+        renderTasks();
+        recalculateMetrics();
+        saveState();
+        renderTimeline();
 
-          if (checkAllStudyCompleted()) {
-            triggerAllStudyCompleteCelebration();
-            return;
-          }
+        if (checkAllStudyCompleted()) {
+          triggerAllStudyCompleteCelebration();
+          return;
         }
         openBreakSelectModal('done');
 
       } else if (action === 'ask') {
-        // 丸つけしてもらう！
-        if (activeTaskIndex !== null) {
-          currentTasks[activeTaskIndex].status = 'grading';
-          clearInterval(timerInterval);
-          isRunning = false;
-          renderTasks();
-          saveState();
-        }
+        task.status = 'grading';
+        clearInterval(timerInterval);
+        isRunning = false;
+        releaseWakeLock();
+        renderTasks();
+        saveState();
+        renderTimeline();
         openBreakSelectModal('ask');
       }
     }
@@ -986,32 +1963,31 @@
 
       if (context === 'ask') {
         titleEl.textContent = "丸つけをお願いしてきたよ！";
-        subtitleEl.textContent = "丸つけの間にどれくらい休憩する？";
+        subtitleEl.textContent = "どれくらい休憩する？";
         skipBtn.classList.add('hidden');
-        directCompleteBtn.classList.remove('hidden'); // （１）丸つけ中休憩の中に完了ボタンを表示
+        directCompleteBtn.classList.remove('hidden');
       } else {
         titleEl.textContent = "🎉 タスク完了！お疲れさま！";
         subtitleEl.textContent = "次の勉強の前に少し休憩する？";
         skipBtn.classList.remove('hidden');
         directCompleteBtn.classList.add('hidden');
       }
-
       document.getElementById('breakSelectModal').classList.remove('hidden');
     }
 
-    // （１）丸つけ中休憩から直接「丸つけも直しもおわり！」を押して完了
     function completeCurrentTaskDirectlyFromBreak() {
       document.getElementById('breakSelectModal').classList.add('hidden');
       if (activeTaskIndex !== null) {
         const task = currentTasks[activeTaskIndex];
         task.status = 'completed';
-        if (!task.finishTime) task.finishTime = formatTimeStr(new Date());
+        task.finishTime = formatTimeStr(new Date());
 
         soundSuccess();
         confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
         renderTasks();
         recalculateMetrics();
         saveState();
+        renderTimeline();
 
         if (checkAllStudyCompleted()) {
           triggerAllStudyCompleteCelebration();
@@ -1027,12 +2003,13 @@
       }
     }
 
-    function applySelectedBreak(minutes) {
+    function applySelectedBreak(minutes, customType = null) {
+      getSafeAudioContext();
       document.getElementById('breakSelectModal').classList.add('hidden');
 
-      const breakName = currentBreakContext === 'ask' 
-        ? `丸つけ待ち休憩 (${minutes}分)` 
-        : `リフレッシュ休憩 (${minutes}分)`;
+      const breakName = customType 
+        ? `${customType} (${minutes}分)` 
+        : (currentBreakContext === 'ask' ? `丸つけ待ち (${minutes}分)` : `リフレッシュ (${minutes}分)`);
 
       const breakTask = {
         id: Date.now() + Math.random(),
@@ -1041,7 +2018,8 @@
         minutes: minutes,
         category: 'break',
         status: 'active',
-        startTime: formatTimeStr(new Date()),
+        intervals: [{ type: '休憩', start: formatTimeStr(new Date()), end: null }],
+        _currentIntervalStart: formatTimeStr(new Date()),
         finishTime: null
       };
 
@@ -1051,6 +2029,7 @@
       selectTask(insertIndex);
       toggleTimer();
       soundWarningChime();
+      renderTimeline();
     }
 
     function skipBreakAndProceed() {
@@ -1064,6 +2043,54 @@
       renderTasks();
       recalculateMetrics();
       saveState();
+      renderTimeline();
+    }
+
+    function finishTask(isGiveUp = false) {
+      if (activeTaskIndex === null) return;
+      clearInterval(timerInterval);
+      stopContinuousBreakAlarm();
+      isRunning = false;
+      releaseWakeLock();
+
+      const task = currentTasks[activeTaskIndex];
+      task.status = isGiveUp ? 'stopped' : 'completed';
+      if (!task.finishTime) task.finishTime = formatTimeStr(new Date());
+
+      if (task._currentIntervalStart) {
+        if (!task.intervals) task.intervals = [];
+        task.intervals.push({
+          type: (task.status === 'grading') ? '直し' : '解く',
+          start: task._currentIntervalStart,
+          end: formatTimeStr(new Date())
+        });
+        task._currentIntervalStart = null;
+      }
+
+      if (!isGiveUp) {
+        soundSuccess();
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+      }
+
+      if (!isGiveUp && checkAllStudyCompleted()) {
+        renderTasks();
+        recalculateMetrics();
+        triggerAllStudyCompleteCelebration();
+        renderTimeline();
+        return;
+      }
+
+      const nextIndex = currentTasks.findIndex((t, idx) => idx > activeTaskIndex && !isLessonTask(t) && t.status !== 'completed');
+      if (nextIndex !== -1) selectTask(nextIndex);
+      else {
+        activeTaskIndex = null;
+        resetTimerDisplay();
+      }
+
+      renderTasks();
+      recalculateMetrics();
+      saveState();
+      renderTimeline();
     }
 
     function checkAllStudyCompleted() {
@@ -1081,10 +2108,6 @@
 
       soundFanfare();
       confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
-      setTimeout(() => {
-        confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
-      }, 350);
-
       showStudySummaryModal("今日の勉強完了");
     }
 
@@ -1093,24 +2116,6 @@
       const totalPlannedMins = studyTasks.reduce((sum, t) => sum + t.minutes, 0);
       const completedMins = studyTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.minutes, 0);
       const percent = totalPlannedMins > 0 ? Math.round((completedMins / totalPlannedMins) * 100) : 0;
-      const uncompletedTasks = studyTasks.filter(t => t.status !== 'completed');
-
-      const titleEl = document.getElementById('summaryMainTitle');
-      const iconContainer = document.getElementById('summaryIconContainer');
-      const headerIcon = document.getElementById('summaryHeaderIcon');
-      const lessonBanner = document.getElementById('summaryLessonBanner');
-
-      if (uncompletedTasks.length === 0) {
-        titleEl.textContent = `🎉 ${typeTitle}がすべて終わりました！完璧！`;
-        iconContainer.className = "w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm";
-        headerIcon.setAttribute('data-lucide', 'party-popper');
-        lessonBanner.classList.remove('hidden');
-      } else {
-        titleEl.textContent = `お疲れさま！${typeTitle}を終了しました`;
-        iconContainer.className = "w-14 h-14 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm";
-        headerIcon.setAttribute('data-lucide', 'award');
-        lessonBanner.classList.remove('hidden');
-      }
 
       document.getElementById('summaryProgressPercent').textContent = `${percent}%`;
       document.getElementById('summaryCompletedMins').textContent = completedMins;
@@ -1120,59 +2125,28 @@
       document.getElementById('summaryStartText').textContent = studyStartTime || "--:--";
       document.getElementById('summaryFinishText').textContent = studyFinishTime || "--:--";
 
-      const uncompletedSec = document.getElementById('uncompletedSection');
-      const uncompletedList = document.getElementById('uncompletedTasksList');
-      uncompletedList.innerHTML = '';
-
-      if (uncompletedTasks.length > 0) {
-        uncompletedSec.classList.remove('hidden');
-        uncompletedTasks.forEach(t => {
-          const li = document.createElement('li');
-          li.className = "flex items-center justify-between";
-          li.innerHTML = `
-            <span>• [${t.majorCategory}] ${t.name}</span>
-            <span class="text-rose-500 font-black">${t.minutes}分</span>
-          `;
-          uncompletedList.appendChild(li);
-        });
-      } else {
-        uncompletedSec.classList.add('hidden');
-      }
-
       const tbody = document.getElementById('summaryTasksTableBody');
       tbody.innerHTML = '';
 
       currentTasks.forEach(task => {
         const tr = document.createElement('tr');
-        const style = getCategoryStyle(task.category);
-        const startStr = task.startTime || '-';
-        const finishStr = task.finishTime || '-';
-        let statusBadge = `<span class="text-slate-400">未完了</span>`;
+        const intervalsStr = (task.intervals && task.intervals.length > 0)
+          ? task.intervals.map(iv => `[${iv.type}] ${iv.start}〜${iv.end || ''}`).join(', ')
+          : '-';
 
-        if (task.status === 'completed') {
-          statusBadge = `<span class="text-emerald-600 font-black">✓ 完了</span>`;
-        } else if (task.status === 'grading') {
-          statusBadge = `<span class="text-purple-600 font-black">✎ 丸つけ中</span>`;
-        } else if (task.status === 'stopped') {
-          statusBadge = `<span class="text-amber-600 font-black">？ わからない</span>`;
-        }
+        let statusBadge = `<span class="text-slate-400">未完了</span>`;
+        if (task.status === 'completed') statusBadge = `<span class="text-emerald-600 font-black">✓ 完了</span>`;
+        else if (task.status === 'grading') statusBadge = `<span class="text-purple-600 font-black">✎ 丸つけ中</span>`;
+        else if (task.status === 'stopped') statusBadge = `<span class="text-amber-600 font-black">？ 未解決</span>`;
 
         tr.innerHTML = `
-          <td class="p-2">
-            <div class="flex items-center gap-1.5">
-              <span>${style.icon}</span>
-              <span class="text-[9px] px-1 py-0.2 bg-white rounded border border-slate-200 text-slate-500">${task.majorCategory}</span>
-              <span class="font-black truncate ${task.status === 'completed' ? 'text-slate-800' : 'text-slate-400'}">${task.name}</span>
-            </div>
-          </td>
-          <td class="p-2 text-center font-mono text-slate-500">${startStr}</td>
-          <td class="p-2 text-center font-mono text-slate-500">${finishStr}</td>
-          <td class="p-2 text-right font-bold">${statusBadge}</td>
+          <td class="p-1.5"><span class="font-black">${task.name}</span></td>
+          <td class="p-1.5 text-center font-mono text-[9px] text-slate-500">${intervalsStr}</td>
+          <td class="p-1.5 text-right font-bold">${statusBadge}</td>
         `;
         tbody.appendChild(tr);
       });
 
-      lucide.createIcons();
       document.getElementById('allStudyCompleteModal').classList.remove('hidden');
       saveState();
     }
@@ -1181,261 +2155,11 @@
       document.getElementById('allStudyCompleteModal').classList.add('hidden');
     }
 
-    // 左側リスト描画
-    function renderTasks() {
-      const taskContainer = document.getElementById('taskListContainer');
-      const lessonContainer = document.getElementById('lessonListContainer');
-      taskContainer.innerHTML = '';
-      lessonContainer.innerHTML = '';
-
-      const studyTasks = [];
-      const lessonTasks = [];
-
-      currentTasks.forEach((task, index) => {
-        if (isLessonTask(task)) lessonTasks.push({ task, index });
-        else studyTasks.push({ task, index });
-      });
-
-      if (studyTasks.length === 0) {
-        taskContainer.innerHTML = `
-          <div class="h-full flex flex-col items-center justify-center text-slate-300 py-10">
-            <i data-lucide="clipboard-list" class="w-10 h-10 stroke-1 mb-2"></i>
-            <p class="text-xs font-bold text-center">ヘッダーの「今日勉スタート」または<br>「＋ 追加」から今日の勉強を入れてね</p>
-          </div>
-        `;
-      } else {
-        studyTasks.forEach(({ task, index }) => {
-          const style = getCategoryStyle(task.category);
-          const isActive = activeTaskIndex === index;
-          const isCompleted = task.status === 'completed';
-          const isStopped = task.status === 'stopped';
-          const isGrading = task.status === 'grading';
-
-          const el = document.createElement('div');
-          el.className = `p-2.5 rounded-xl border flex items-center justify-between flex-shrink-0 transition cursor-pointer ${style.bg} ${
-            isGrading ? 'border-purple-400 bg-purple-50/80 shadow-sm ring-1 ring-purple-300' : (isActive ? 'ring-2 ring-indigo-500 border-indigo-400 shadow-md' : style.border)
-          } ${isCompleted ? 'opacity-40 grayscale-[40%]' : ''}`;
-          el.onclick = () => selectTask(index);
-
-          el.innerHTML = `
-            <div class="flex items-center gap-2 flex-1 min-w-0">
-              <span class="text-sm">${style.icon}</span>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-white/70 border border-slate-200 text-slate-600">${task.majorCategory}</span>
-                  <span class="text-xs font-black truncate ${isCompleted ? 'line-through text-slate-400' : style.text}">${task.name}</span>
-                  ${isStopped ? '<span class="text-[9px] px-1.5 py-0.2 bg-amber-200 text-amber-900 rounded font-black">？ わからない</span>' : ''}
-                  ${isGrading ? `
-                    <span class="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 bg-purple-600 text-white rounded-lg font-black shadow-sm animate-pulse">
-                      <i data-lucide="pen-tool" class="w-3 h-3"></i>
-                      <span>✎ 丸つけ中</span>
-                    </span>
-                  ` : ''}
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-1.5" onclick="event.stopPropagation()">
-              ${!isCompleted ? `
-                <div class="flex items-center gap-1 bg-white/80 px-1 py-0.5 rounded-lg border border-slate-200">
-                  <button onclick="adjustTaskMinutes(${index}, -5)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">-</button>
-                  <span class="text-[11px] font-black text-slate-700 min-w-6 text-center">${task.minutes}m</span>
-                  <button onclick="adjustTaskMinutes(${index}, 5)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">+</button>
-                </div>
-              ` : '<span class="text-emerald-600 font-bold text-xs mr-1">✓ 完了</span>'}
-              <button onclick="removeTask(${index})" class="p-1 text-slate-400 hover:text-rose-500 rounded">
-                <i data-lucide="x" class="w-4 h-4"></i>
-              </button>
-            </div>
-          `;
-          taskContainer.appendChild(el);
-        });
-      }
-
-      if (lessonTasks.length === 0) {
-        lessonContainer.innerHTML = `
-          <div class="h-full flex items-center justify-center text-slate-300 text-xs font-bold py-4">
-            今日の習いごと・日能研の予定はありません
-          </div>
-        `;
-      } else {
-        lessonTasks.forEach(({ task, index }) => {
-          const style = getCategoryStyle(task.category);
-          const el = document.createElement('div');
-          el.className = `p-2 rounded-xl border flex items-center justify-between flex-shrink-0 ${style.bg} ${style.border}`;
-
-          el.innerHTML = `
-            <div class="flex items-center gap-2 flex-1 min-w-0">
-              <span class="text-sm">${style.icon}</span>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-sky-100 border border-sky-300 text-sky-800">${task.majorCategory}</span>
-                  <span class="text-xs font-black truncate text-sky-950">${task.name}</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-1.5" onclick="event.stopPropagation()">
-              <div class="flex items-center gap-1 bg-white/80 px-1 py-0.5 rounded-lg border border-slate-200">
-                <button onclick="adjustTaskMinutes(${index}, -10)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">-</button>
-                <span class="text-[11px] font-black text-slate-700 min-w-8 text-center">${task.minutes}m</span>
-                <button onclick="adjustTaskMinutes(${index}, 10)" class="w-4 h-4 rounded hover:bg-slate-100 text-slate-500 font-bold text-[10px]">+</button>
-              </div>
-              <button onclick="removeTask(${index})" class="p-1 text-slate-400 hover:text-rose-500 rounded">
-                <i data-lucide="x" class="w-4 h-4"></i>
-              </button>
-            </div>
-          `;
-          lessonContainer.appendChild(el);
-        });
-      }
-      lucide.createIcons();
-    }
-
-    function adjustTaskMinutes(index, delta) {
-      if (!currentTasks[index]) return;
-      currentTasks[index].minutes = Math.max(5, currentTasks[index].minutes + delta);
-      if (activeTaskIndex === index) {
-        totalDurationSeconds = currentTasks[index].minutes * 60;
-        remainingSeconds = totalDurationSeconds;
-        updateTimerDisplay();
-      }
-      renderTasks();
-      recalculateMetrics();
-      saveState();
-    }
-
-    function removeTask(index) {
-      if (activeTaskIndex === index) {
-        clearInterval(timerInterval);
-        isRunning = false;
-        activeTaskIndex = null;
-      } else if (activeTaskIndex > index) {
-        activeTaskIndex--;
-      }
-      currentTasks.splice(index, 1);
-      renderTasks();
-      recalculateMetrics();
-      saveState();
-    }
-
-    function clearAllTasks() {
-      if (currentTasks.length === 0) return;
-      if (confirm("今日のリストを全消去しますか？")) {
-        clearInterval(timerInterval);
-        isRunning = false;
-        currentTasks = [];
-        activeTaskIndex = null;
-        renderTasks();
-        resetTimerDisplay();
-        recalculateMetrics();
-        saveState();
-      }
-    }
-
-    function selectTask(index) {
-      if (index < 0 || index >= currentTasks.length) return;
-      if (currentTasks[index].status === 'completed') return;
-
-      activeTaskIndex = index;
-      const task = currentTasks[index];
-
-      if (!task.startTime) {
-        task.startTime = formatTimeStr(new Date());
-      }
-
-      totalDurationSeconds = task.minutes * 60;
-      remainingSeconds = totalDurationSeconds;
-
-      currentTasks.forEach((t, i) => { if (t.status === 'active') t.status = 'pending'; });
-      if (task.status !== 'grading') {
-        task.status = 'active';
-      }
-
-      clearInterval(timerInterval);
-      isRunning = false;
-      updateTimerUI();
-      renderTasks();
-      saveState();
-    }
-
-    function toggleTimer() {
-      getAudioContext();
-      if (activeTaskIndex === null) {
-        const firstStudy = currentTasks.findIndex(t => !isLessonTask(t) && t.status !== 'completed');
-        if (firstStudy !== -1) selectTask(firstStudy);
-        else return;
-      }
-
-      if (isRunning) {
-        clearInterval(timerInterval);
-        isRunning = false;
-      } else {
-        isRunning = true;
-        timerInterval = setInterval(() => {
-          remainingSeconds--;
-          const currentTask = currentTasks[activeTaskIndex];
-          if (currentTask && currentTask.category === 'break' && remainingSeconds === 60) {
-            soundWarningChime();
-          }
-          if (remainingSeconds <= 0) {
-            clearInterval(timerInterval);
-            isRunning = false;
-            soundAlarm();
-            alert(`時間になりました！「${currentTask.name}」終了です。`);
-            finishTask(false);
-          }
-          updateTimerDisplay();
-        }, 1000);
-      }
-      updateTimerUI();
-    }
-
-    function resetCurrentTimer() {
-      if (activeTaskIndex === null) return;
-      clearInterval(timerInterval);
-      isRunning = false;
-      remainingSeconds = totalDurationSeconds;
-      updateTimerUI();
-    }
-
-    function finishTask(isGiveUp = false) {
-      if (activeTaskIndex === null) return;
-      clearInterval(timerInterval);
-      isRunning = false;
-
-      const task = currentTasks[activeTaskIndex];
-      task.status = isGiveUp ? 'stopped' : 'completed';
-      if (!task.finishTime) {
-        task.finishTime = formatTimeStr(new Date());
-      }
-
-      if (!isGiveUp) {
-        soundSuccess();
-        confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
-      }
-
-      if (!isGiveUp && checkAllStudyCompleted()) {
-        renderTasks();
-        recalculateMetrics();
-        triggerAllStudyCompleteCelebration();
-        return;
-      }
-
-      const nextIndex = currentTasks.findIndex((t, idx) => idx > activeTaskIndex && !isLessonTask(t) && t.status !== 'completed');
-      if (nextIndex !== -1) selectTask(nextIndex);
-      else {
-        activeTaskIndex = null;
-        resetTimerDisplay();
-      }
-
-      renderTasks();
-      recalculateMetrics();
-      saveState();
-    }
-
     function updateTimerUI() {
       const toggleBtn = document.getElementById('timerToggleBtn');
       const toggleText = document.getElementById('timerToggleText');
       const toggleIcon = document.getElementById('timerToggleIcon');
+      const resetBtn = document.getElementById('timerResetBtn');
       const timerPanel = document.getElementById('timerPanel');
       const categoryBadge = document.getElementById('timerCategoryBadge');
       const majorCategoryEl = document.getElementById('currentMajorCategory');
@@ -1455,14 +2179,33 @@
         titleEl.textContent = task.name;
         majorCategoryEl.textContent = `[ ${task.majorCategory} ]`;
         categoryBadge.textContent = style.label;
-        categoryBadge.className = `px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider ${style.tagBg} ${style.tagText}`;
+        categoryBadge.className = `px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider ${style.tagBg} ${style.tagText}`;
         indexText.textContent = `タスク ${activeTaskIndex + 1} / ${currentTasks.length}`;
+
+        if (task.status === 'completed') {
+          timerPanel.classList.remove('bg-purple-50/60');
+          nextStepBanner.classList.add('hidden');
+          giveUpBtn.classList.add('hidden');
+          completeBtn.classList.add('hidden');
+          resetBtn.classList.add('hidden');
+
+          toggleBtn.className = "px-8 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-base shadow-md transition active:scale-95 flex items-center gap-2";
+          toggleText.textContent = "再開（丸つけ中に戻す）";
+          toggleIcon.setAttribute('data-lucide', 'rotate-ccw');
+
+          remainingSeconds = 0;
+          updateTimerDisplay();
+          lucide.createIcons();
+          return;
+        }
+
+        resetBtn.classList.remove('hidden');
+        completeBtn.classList.remove('hidden');
 
         if (task.category === 'break') {
           timerPanel.classList.add('bg-purple-50/60');
           giveUpBtn.classList.add('hidden');
-          
-          completeBtn.className = "col-span-2 py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black text-sm shadow-md shadow-purple-200 transition flex items-center justify-center gap-2";
+          completeBtn.className = "col-span-2 py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black text-sm shadow-xs transition flex items-center justify-center gap-2";
           completeBtnText.textContent = "☕ 休憩おわり！（次へ）";
           completeBtnIcon.setAttribute('data-lucide', 'arrow-right');
 
@@ -1477,19 +2220,18 @@
           timerPanel.classList.remove('bg-purple-50/60');
           nextStepBanner.classList.add('hidden');
           giveUpBtn.classList.remove('hidden');
-
-          completeBtn.className = "py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2";
+          completeBtn.className = "py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-xs transition flex items-center justify-center gap-2";
           completeBtnText.textContent = "できた！とけた！";
           completeBtnIcon.setAttribute('data-lucide', 'check');
         }
       }
 
       if (isRunning) {
-        toggleBtn.className = "px-8 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-base shadow-lg shadow-amber-200 transition active:scale-95 flex items-center gap-2";
+        toggleBtn.className = "px-8 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-base shadow-md transition active:scale-95 flex items-center gap-2";
         toggleText.textContent = "一時停止";
         toggleIcon.setAttribute('data-lucide', 'pause');
       } else {
-        toggleBtn.className = "px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base shadow-lg shadow-indigo-200 transition active:scale-95 flex items-center gap-2";
+        toggleBtn.className = "px-8 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base shadow-md transition active:scale-95 flex items-center gap-2";
         toggleText.textContent = "スタート";
         toggleIcon.setAttribute('data-lucide', 'play');
       }
@@ -1502,7 +2244,7 @@
       const sec = Math.max(0, remainingSeconds) % 60;
       document.getElementById('timeRemainingDisplay').textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
       const ring = document.getElementById('timerRing');
-      const circumference = 2 * Math.PI * 98;
+      const circumference = 2 * Math.PI * 82;
       ring.style.strokeDashoffset = totalDurationSeconds > 0 ? circumference - (remainingSeconds / totalDurationSeconds) * circumference : 0;
     }
 
@@ -1510,14 +2252,13 @@
       document.getElementById('currentMajorCategory').textContent = "";
       document.getElementById('currentTaskTitle').textContent = "左のリストからタスクを選択";
       document.getElementById('timerCategoryBadge').textContent = "準備中";
-      document.getElementById('timerCategoryBadge').className = "px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-slate-100 text-slate-600";
+      document.getElementById('timerCategoryBadge').className = "px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-slate-100 text-slate-600";
       document.getElementById('currentTaskIndexText').textContent = "タスク未選択";
       document.getElementById('nextStepBanner').classList.add('hidden');
       document.getElementById('timerPanel').classList.remove('bg-purple-50/60');
       document.getElementById('giveUpBtn').classList.remove('hidden');
-      document.getElementById('completeBtn').className = "py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2";
-      document.getElementById('completeBtnText').textContent = "できた！とけた！";
-      document.getElementById('completeBtnIcon').setAttribute('data-lucide', 'check');
+      document.getElementById('completeBtn').classList.remove('hidden');
+      document.getElementById('timerResetBtn').classList.remove('hidden');
       remainingSeconds = 0;
       totalDurationSeconds = 0;
       updateTimerDisplay();
@@ -1525,19 +2266,38 @@
     }
 
     function recalculateMetrics() {
-      const remainingMinutes = currentTasks
-        .filter(t => !isLessonTask(t) && t.status !== 'completed')
-        .reduce((sum, t) => sum + t.minutes, 0);
+      const remainingTasks = currentTasks.filter(t => !isLessonTask(t) && t.status !== 'completed');
+      const remainingStudyMinutes = remainingTasks.reduce((sum, t) => sum + t.minutes, 0);
+
+      const breakCount = Math.max(0, remainingTasks.length - 1);
+      const totalEstimatedMinutes = remainingStudyMinutes + (breakCount * 15);
 
       document.getElementById('totalStudyMinutes').textContent = currentTasks
         .filter(t => !isLessonTask(t))
         .reduce((sum, t) => sum + t.minutes, 0);
 
       const now = new Date();
-      const finishDate = new Date(now.getTime() + remainingMinutes * 60000);
-      document.getElementById('finishTimeText').textContent = formatTimeStr(finishDate);
+      const finishDate = new Date(now.getTime() + totalEstimatedMinutes * 60000);
+      const finishStr = formatTimeStr(finishDate);
+      document.getElementById('finishTimeText').textContent = finishStr;
+      document.getElementById('centerFinishTimeText').textContent = finishStr;
 
-      const dinnerInput = document.getElementById('dinnerTimeInput').value;
+      const centerLessonContainer = document.getElementById('centerLessonInfoContainer');
+      const lessonTasks = currentTasks.filter(t => isLessonTask(t));
+      if (lessonTasks.length === 0) {
+        centerLessonContainer.innerHTML = `<span class="text-slate-400">習い事なし</span>`;
+      } else {
+        centerLessonContainer.innerHTML = '';
+        lessonTasks.forEach(lt => {
+          const badge = document.createElement('span');
+          badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-sky-100 border border-sky-300 text-sky-900 font-black text-xs";
+          const timeText = lt.startTime ? `${lt.startTime}〜` : '未定';
+          badge.innerHTML = `<span>🎒 ${lt.name}</span> <span class="text-sky-700 font-mono">(${timeText})</span>`;
+          centerLessonContainer.appendChild(badge);
+        });
+      }
+
+      const dinnerInput = document.getElementById('dinnerTimeInput').value || "18:00";
       if (dinnerInput) {
         const [dH, dM] = dinnerInput.split(':').map(Number);
         const dinnerDate = new Date();
@@ -1547,15 +2307,79 @@
         const freeText = document.getElementById('freeTimeMinutes');
         if (diff >= 0) {
           freeText.textContent = diff;
-          freeBanner.className = "flex items-center gap-3 bg-emerald-50 border border-emerald-300 px-5 py-1.5 rounded-2xl shadow-sm transition";
+          freeBanner.className = "flex items-center gap-2.5 bg-emerald-50 border border-emerald-300 px-3.5 py-1 rounded-xl shadow-xs transition";
         } else {
           freeText.textContent = 0;
-          freeBanner.className = "flex items-center gap-3 bg-rose-50 border border-rose-300 px-5 py-1.5 rounded-2xl shadow-sm transition";
+          freeBanner.className = "flex items-center gap-2.5 bg-rose-50 border border-rose-300 px-3.5 py-1 rounded-xl shadow-xs transition";
         }
+      }
+      lucide.createIcons();
+    }
+
+    function adjustTaskMinutes(index, delta) {
+      if (!currentTasks[index]) return;
+      currentTasks[index].minutes = Math.max(5, currentTasks[index].minutes + delta);
+      if (activeTaskIndex === index) {
+        totalDurationSeconds = currentTasks[index].minutes * 60;
+        remainingSeconds = totalDurationSeconds;
+        updateTimerDisplay();
+      }
+      renderTasks();
+      recalculateMetrics();
+      saveState();
+      renderTimeline();
+    }
+
+    function removeTask(index) {
+      if (activeTaskIndex === index) {
+        clearInterval(timerInterval);
+        stopContinuousBreakAlarm();
+        isRunning = false;
+        releaseWakeLock();
+        activeTaskIndex = null;
+      } else if (activeTaskIndex > index) {
+        activeTaskIndex--;
+      }
+      currentTasks.splice(index, 1);
+      renderTasks();
+      recalculateMetrics();
+      saveState();
+      renderTimeline();
+    }
+
+    function promptSetLessonTime(index) {
+      const task = currentTasks[index];
+      if (!task) return;
+      const input = prompt(`「${task.name}」の開始時刻を入力してください (例: 17:00)`, task.startTime || "");
+      if (input !== null) {
+        task.startTime = input.trim();
+        renderTasks();
+        recalculateMetrics();
+        saveState();
+        renderTimeline();
       }
     }
 
-    // 保護者モード制御
+    function clearAllTasks() {
+      if (currentTasks.length === 0) return;
+      if (confirm("今日のリストを全消去しますか？")) {
+        clearInterval(timerInterval);
+        stopContinuousBreakAlarm();
+        isRunning = false;
+        releaseWakeLock();
+        currentTasks = [];
+        activeTaskIndex = null;
+        renderTasks();
+        resetTimerDisplay();
+        recalculateMetrics();
+        saveState();
+        renderTimeline();
+      }
+    }
+
+    // ========================================================
+    // ★ 保護者モード
+    // ========================================================
     function toggleMode() {
       isParentMode = !isParentMode;
       const childView = document.getElementById('childView');
@@ -1570,8 +2394,8 @@
         childView.classList.add('hidden');
         parentView.classList.remove('hidden');
         badge.textContent = "保護者・設定モード";
-        badge.className = "text-xs px-2 py-0.5 rounded-full bg-slate-800 text-white font-bold";
-        btnText.textContent = "子どもモードに戻る";
+        badge.className = "text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-white font-bold";
+        btnText.textContent = "子どもモード";
         icon.setAttribute('data-lucide', 'arrow-left');
         freeBanner.classList.add('hidden');
         childActions.classList.add('hidden');
@@ -1580,18 +2404,20 @@
         parentView.classList.add('hidden');
         childView.classList.remove('hidden');
         badge.textContent = "子どもモード";
-        badge.className = "text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold";
-        btnText.textContent = "保護者・設定モードへ";
+        badge.className = "text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold";
+        btnText.textContent = "保護者";
         icon.setAttribute('data-lucide', 'settings');
         freeBanner.classList.remove('hidden');
         childActions.classList.remove('hidden');
         renderTasks();
         recalculateMetrics();
+        renderTimeline();
       }
       lucide.createIcons();
     }
 
     function renderParentView() {
+      document.getElementById('parentCycleStartDateInput').value = cycleStartDateStr;
       renderMasterPalette();
       renderParentDayTabs();
       renderParentDayTasks();
@@ -1606,21 +2432,26 @@
         group.className = "border border-slate-200 rounded-xl overflow-hidden flex-shrink-0";
         
         const header = document.createElement('div');
-        header.className = "bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700 flex items-center justify-between";
+        header.className = "bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-700 flex items-center justify-between";
         header.textContent = major;
         group.appendChild(header);
 
         const list = document.createElement('div');
-        list.className = "p-2 bg-white flex flex-col gap-1.5";
+        list.className = "p-1.5 bg-white flex flex-col gap-1";
 
         items.forEach(item => {
           const btn = document.createElement('button');
           const style = getCategoryStyle(item.category);
-          btn.className = `p-2 rounded-lg text-left text-xs font-bold border ${style.border} ${style.bg} hover:brightness-95 flex items-center justify-between transition`;
+          btn.className = `p-1.5 rounded-lg text-left text-xs font-bold border ${style.border} ${style.bg} hover:brightness-95 flex items-center justify-between transition`;
           btn.onclick = () => addMasterItemToParentDay(item);
+          
+          const timeBadge = item.startTime ? `(${item.startTime}〜)` : (item.timePending ? `(未定)` : '');
           btn.innerHTML = `
-            <span class="truncate">${item.name}</span>
-            <span class="text-[10px] px-1.5 py-0.5 bg-white/80 rounded text-slate-600 font-extrabold flex-shrink-0">${item.minutes}分 ＋</span>
+            <div class="truncate flex items-center gap-1">
+              <span>${item.name}</span>
+              ${timeBadge ? `<span class="text-[9px] text-indigo-700 font-mono">${timeBadge}</span>` : ''}
+            </div>
+            <span class="text-[9px] px-1 py-0.2 bg-white/80 rounded text-slate-600 font-extrabold flex-shrink-0">${item.minutes}m ＋</span>
           `;
           list.appendChild(btn);
         });
@@ -1632,8 +2463,8 @@
 
     function switchParentWeek(w) {
       parentCurrentWeek = w;
-      document.getElementById('parentWeek1Btn').className = w === 1 ? "px-4 py-1.5 rounded-lg bg-white shadow-sm text-indigo-600 transition" : "px-4 py-1.5 rounded-lg text-slate-600 transition";
-      document.getElementById('parentWeek2Btn').className = w === 2 ? "px-4 py-1.5 rounded-lg bg-white shadow-sm text-indigo-600 transition" : "px-4 py-1.5 rounded-lg text-slate-600 transition";
+      document.getElementById('parentWeek1Btn').className = w === 1 ? "px-3 py-1 rounded-md bg-white shadow-xs text-indigo-600 transition" : "px-3 py-1 rounded-md text-slate-600 transition";
+      document.getElementById('parentWeek2Btn').className = w === 2 ? "px-3 py-1 rounded-md bg-white shadow-xs text-indigo-600 transition" : "px-3 py-1 rounded-md text-slate-600 transition";
       renderParentDayTasks();
     }
 
@@ -1643,7 +2474,7 @@
       DAYS_ORDER.forEach(day => {
         const isSel = parentCurrentDay === day;
         const btn = document.createElement('button');
-        btn.className = `py-2.5 transition border-b-2 ${isSel ? 'border-indigo-600 text-indigo-700 bg-white' : 'border-transparent text-slate-500 hover:bg-slate-200/50'}`;
+        btn.className = `py-2 transition border-b-2 ${isSel ? 'border-indigo-600 text-indigo-700 bg-white font-black' : 'border-transparent text-slate-500 hover:bg-slate-200/50'}`;
         btn.textContent = day.replace('曜日', '');
         btn.onclick = () => {
           parentCurrentDay = day;
@@ -1658,21 +2489,13 @@
     function renderParentDayTasks() {
       const container = document.getElementById('parentDayTasksContainer');
       container.innerHTML = '';
-      if (!twoWeekSchedule[parentCurrentWeek][parentCurrentDay]) {
-        twoWeekSchedule[parentCurrentWeek][parentCurrentDay] = [];
-      }
+      if (!twoWeekSchedule[parentCurrentWeek][parentCurrentDay]) twoWeekSchedule[parentCurrentWeek][parentCurrentDay] = [];
 
       const tasks = twoWeekSchedule[parentCurrentWeek][parentCurrentDay];
       let totalMins = 0;
 
       if (tasks.length === 0) {
-        container.innerHTML = `
-          <div class="h-full flex flex-col items-center justify-center text-slate-300 py-16">
-            <i data-lucide="calendar-plus" class="w-12 h-12 stroke-1 mb-2"></i>
-            <p class="text-xs font-bold">左の「科目別マスター」から項目を選んで追加してください</p>
-          </div>
-        `;
-        lucide.createIcons();
+        container.innerHTML = `<div class="h-full flex items-center justify-center text-slate-300 text-xs py-10">左のマスターから選んで追加</div>`;
         document.getElementById('parentDayTotalMinutes').textContent = "0";
         return;
       }
@@ -1681,20 +2504,23 @@
         totalMins += task.minutes;
         const style = getCategoryStyle(task.category);
         const card = document.createElement('div');
-        card.className = `p-2.5 rounded-xl border flex items-center justify-between flex-shrink-0 ${style.border} ${style.bg}`;
+        card.className = `p-2 rounded-xl border flex items-center justify-between flex-shrink-0 ${style.border} ${style.bg}`;
+        const timeBadge = task.startTime ? `<span class="text-[9px] text-indigo-700 font-mono font-bold">(${task.startTime}〜)</span>` : (task.timePending ? `<span class="text-[9px] text-amber-600 font-bold">(未定)</span>` : '');
+
         card.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-black px-1.5 py-0.5 rounded bg-white/70 text-slate-700 border border-slate-200">${task.majorCategory}</span>
-            <span class="text-xs font-black text-slate-800">${task.name}</span>
+          <div class="flex items-center gap-1.5 truncate">
+            <span class="text-[9px] font-black px-1 rounded bg-white border border-slate-200">${task.majorCategory}</span>
+            <span class="text-xs font-black truncate">${task.name}</span>
+            ${timeBadge}
           </div>
-          <div class="flex items-center gap-2">
-            <div class="flex items-center gap-1">
-              <button onclick="adjustParentTaskTime(${index}, -5)" class="w-5 h-5 rounded bg-white border border-slate-200 text-slate-600 font-bold text-xs">-</button>
-              <span class="text-xs font-black text-slate-700 w-8 text-center">${task.minutes}m</span>
-              <button onclick="adjustParentTaskTime(${index}, 5)" class="w-5 h-5 rounded bg-white border border-slate-200 text-slate-600 font-bold text-xs">+</button>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <div class="flex items-center gap-0.5">
+              <button onclick="adjustParentTaskTime(${index}, -5)" class="w-4 h-4 rounded bg-white border border-slate-200 text-slate-600 font-bold text-xs">-</button>
+              <span class="text-xs font-black text-slate-700 w-7 text-center">${task.minutes}m</span>
+              <button onclick="adjustParentTaskTime(${index}, 5)" class="w-4 h-4 rounded bg-white border border-slate-200 text-slate-600 font-bold text-xs">+</button>
             </div>
-            <button onclick="removeParentTask(${index})" class="p-1 text-slate-400 hover:text-rose-500">
-              <i data-lucide="x" class="w-4 h-4"></i>
+            <button onclick="removeParentTask(${index})" class="p-0.5 text-slate-400 hover:text-rose-500">
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>
             </button>
           </div>
         `;
@@ -1706,13 +2532,24 @@
     }
 
     function addMasterItemToParentDay(item) {
-      if (!twoWeekSchedule[parentCurrentWeek][parentCurrentDay]) {
-        twoWeekSchedule[parentCurrentWeek][parentCurrentDay] = [];
+      if (!twoWeekSchedule[parentCurrentWeek][parentCurrentDay]) twoWeekSchedule[parentCurrentWeek][parentCurrentDay] = [];
+      let startTime = item.startTime;
+      let timePending = item.timePending;
+
+      if (timePending) {
+        const input = prompt(`「${item.name}」の開始時刻を入力 (空欄で未定)`, "");
+        if (input !== null && input.trim() !== "") {
+          startTime = input.trim();
+          timePending = false;
+        }
       }
+
       twoWeekSchedule[parentCurrentWeek][parentCurrentDay].push({
         majorCategory: item.major,
         name: item.name,
         minutes: item.minutes,
+        startTime: startTime,
+        timePending: timePending,
         category: item.category
       });
       renderParentDayTasks();
@@ -1739,7 +2576,8 @@
           md += `## ${day}\n`;
           const tasks = twoWeekSchedule[week][day] || [];
           tasks.forEach(t => {
-            md += `- ${t.majorCategory}\n  - ${t.name}: ${t.minutes}\n`;
+            const timeStr = t.startTime ? `(${t.startTime})` : (t.timePending ? `()` : '');
+            md += `- ${t.majorCategory}\n- ${t.name}${timeStr}: ${t.minutes}\n`;
           });
           md += `\n`;
         });
@@ -1754,42 +2592,37 @@
       URL.revokeObjectURL(url);
     }
 
+    function triggerMasterFileLoad() {
+      document.getElementById('masterFileInput').click();
+    }
+
+    function handleMasterFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const content = e.target.result;
+        masterData = parseMasterMarkdown(content);
+        localStorage.setItem('study_quest_master_md', content);
+        localStorage.setItem('study_quest_master_version', 'custom_' + Date.now());
+        renderMasterPalette();
+        alert("master-subject.md を読み込みました！");
+      };
+      reader.readAsText(file);
+    }
+
     function applyToDefaultAndSave() {
       localStorage.setItem('study_quest_2week_schedule', JSON.stringify(twoWeekSchedule));
-      alert("現在の2週間スケジュールを標準テンプレートとして保存しました！\n子どもモードの「今日の標準メニュー」に即時反映されます。");
+      localStorage.setItem('study_quest_schedule_version', SCHEDULE_VERSION);
+      alert("2週間スケジュールを保存しました！子どもモードに即時反映されています。");
     }
 
-    function quickLoadTodaySchedule() {
-      const todayIndex = new Date().getDay();
-      const todayName = DAYS_ORDER[todayIndex];
-
-      const tasks = twoWeekSchedule[1][todayName] || [];
-      if (tasks.length === 0) {
-        alert(`${todayName}の標準メニューがまだ設定されていません。\n保護者モードでスケジュールを作成してください。`);
-        return;
-      }
-
-      currentTasks = tasks.map(t => ({
-        id: Date.now() + Math.random(),
-        majorCategory: t.majorCategory,
-        name: t.name,
-        minutes: t.minutes,
-        category: t.category,
-        status: 'pending',
-        startTime: null,
-        finishTime: null
-      }));
-
-      activeTaskIndex = null;
-      renderTasks();
-      resetTimerDisplay();
-      recalculateMetrics();
-      saveState();
-      soundSuccess();
-    }
-
+    // ========================================================
+    // ★ 保存・復元 (日付キーによる日次セッション管理)
+    // ========================================================
     function saveState() {
-      localStorage.setItem('study_quest_current_tasks', JSON.stringify(currentTasks));
+      const todayKey = getTodayKey();
+      localStorage.setItem(todayKey, JSON.stringify(currentTasks));
       localStorage.setItem('study_quest_dinner_time', document.getElementById('dinnerTimeInput').value);
       if (studyStartTime) localStorage.setItem('study_quest_start_time', studyStartTime);
       if (studyFinishTime) localStorage.setItem('study_quest_finish_time', studyFinishTime);
@@ -1797,31 +2630,66 @@
     }
 
     function initApp() {
+      updateDateAndClock();
+      setInterval(updateDateAndClock, 1000);
+
       document.getElementById('todayReturnTimeText').textContent = getTodayReturnTime();
 
-      const savedMaster = localStorage.getItem('study_quest_master_md') || DEFAULT_MASTER_MD;
+      // 開始日をロード、または直近の日曜日を自動設定
+      cycleStartDateStr = localStorage.getItem('study_quest_cycle_start_date') || getRecentSundayStr();
+      localStorage.setItem('study_quest_cycle_start_date', cycleStartDateStr);
+
+      // マスター読み込み
+      const savedMasterVersion = localStorage.getItem('study_quest_master_version');
+      let savedMaster = localStorage.getItem('study_quest_master_md');
+      if (!savedMasterVersion || savedMasterVersion !== MASTER_VERSION || !savedMaster || !savedMaster.includes('習い事フェ')) {
+        savedMaster = DEFAULT_MASTER_MD;
+        localStorage.setItem('study_quest_master_md', DEFAULT_MASTER_MD);
+        localStorage.setItem('study_quest_master_version', MASTER_VERSION);
+      }
       masterData = parseMasterMarkdown(savedMaster);
 
+      // スケジュール読み込み
+      const savedSchedVersion = localStorage.getItem('study_quest_schedule_version');
       const saved2Week = localStorage.getItem('study_quest_2week_schedule');
-      if (saved2Week) {
-        try { twoWeekSchedule = JSON.parse(saved2Week); } catch(e) {}
+      if (!savedSchedVersion || savedSchedVersion !== SCHEDULE_VERSION || !saved2Week) {
+        twoWeekSchedule = parse2WeekMarkdown(DEFAULT_2WEEK_MD);
+        localStorage.setItem('study_quest_2week_schedule', JSON.stringify(twoWeekSchedule));
+        localStorage.setItem('study_quest_schedule_version', SCHEDULE_VERSION);
       } else {
-        [1, 2].forEach(w => {
-          twoWeekSchedule[w] = {};
-          DAYS_ORDER.forEach(d => twoWeekSchedule[w][d] = []);
-        });
-      }
-
-      const savedTasks = localStorage.getItem('study_quest_current_tasks');
-      if (savedTasks) {
         try {
-          currentTasks = JSON.parse(savedTasks);
-          renderTasks();
-        } catch(e) {}
+          twoWeekSchedule = JSON.parse(saved2Week);
+        } catch(e) {
+          twoWeekSchedule = parse2WeekMarkdown(DEFAULT_2WEEK_MD);
+        }
       }
 
-      const savedDinner = localStorage.getItem('study_quest_dinner_time');
-      if (savedDinner) document.getElementById('dinnerTimeInput').value = savedDinner;
+      // 今日のタスク復元
+      const todayKey = getTodayKey();
+      const savedTodayTasks = localStorage.getItem(todayKey);
+      if (savedTodayTasks) {
+        try {
+          currentTasks = JSON.parse(savedTodayTasks);
+        } catch(e) {}
+      } else {
+        const todayDayName = getTodayDayName();
+        const defaultToday = (twoWeekSchedule[1] && twoWeekSchedule[1][todayDayName]) || [];
+        currentTasks = defaultToday.map(t => ({
+          id: Date.now() + Math.random(),
+          majorCategory: t.majorCategory,
+          name: t.name,
+          minutes: t.minutes,
+          startTime: t.startTime,
+          category: t.category,
+          status: 'pending',
+          intervals: [],
+          finishTime: null
+        }));
+        saveState();
+      }
+
+      const savedDinner = localStorage.getItem('study_quest_dinner_time') || "18:00";
+      document.getElementById('dinnerTimeInput').value = savedDinner;
 
       const savedStart = localStorage.getItem('study_quest_start_time');
       if (savedStart) {
@@ -1844,13 +2712,16 @@
         document.getElementById('targetFinishTimeText').textContent = savedTarget;
       }
 
+      renderTasks();
       recalculateMetrics();
+      renderTimeline();
       lucide.createIcons();
     }
 
     document.getElementById('dinnerTimeInput').addEventListener('change', () => {
       recalculateMetrics();
       saveState();
+      renderTimeline();
     });
 
     window.addEventListener('DOMContentLoaded', initApp);
